@@ -1,0 +1,346 @@
+// Temple Management System - Prisma Schema
+// Generated for PostgreSQL 14+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// 1. USERS TABLE (Shared between both modules)
+// ============================================================
+
+model User {
+  id        String   @id @default(uuid()) @map("user_id") @db.Uuid
+
+  // Authentication
+  googleId       String?   @unique @map("google_id") @db.VarChar(255)
+  phoneNumber    String    @unique @map("phone_number") @db.VarChar(15)
+  phoneVerified  Boolean   @default(false) @map("phone_verified")
+
+  // Personal Information
+  fullName  String   @map("full_name") @db.VarChar(255)
+  email     String?  @db.VarChar(255)
+  city      String?  @db.VarChar(100)
+  state     String?  @db.VarChar(100)
+  country   String   @default("India") @db.VarChar(100)
+  pincode   String?  @db.VarChar(10)
+
+  // WhatsApp Group Management
+  whatsappGroupAdded   Boolean    @default(false) @map("whatsapp_group_added")
+  whatsappGroupAddedAt DateTime?  @map("whatsapp_group_added_at")
+  whatsappOptIn        Boolean    @default(true) @map("whatsapp_opt_in")
+
+  // Statistics
+  totalDonations    Decimal   @default(0.00) @map("total_donations") @db.Decimal(10, 2)
+  donationCount     Int       @default(0) @map("donation_count")
+  bookingCount      Int       @default(0) @map("booking_count")
+  firstActivityDate DateTime? @map("first_activity_date")
+  lastActivityDate  DateTime? @map("last_activity_date")
+
+  // Metadata
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  lastLogin DateTime? @map("last_login")
+
+  // Relations
+  donations              Donation[]
+  poojaBookings          PoojaBooking[]
+  whatsappGroupMembers   WhatsappGroupMember[]
+  whatsappFailedAdditions WhatsappFailedAddition[]
+
+  @@index([phoneNumber])
+  @@index([email])
+  @@index([googleId])
+  @@index([whatsappGroupAdded], map: "idx_users_whatsapp_pending")
+  @@map("users")
+}
+
+// ============================================================
+// 2. DONATIONS MODULE
+// ============================================================
+
+model Donation {
+  id            String   @id @default(uuid()) @map("donation_id") @db.Uuid
+  receiptNumber String   @unique @map("receipt_number") @db.VarChar(50)
+  userId        String?  @map("user_id") @db.Uuid
+
+  // Donation Details
+  amount          Decimal  @db.Decimal(10, 2)
+  donationType    String   @default("General") @map("donation_type") @db.VarChar(50)
+  donationPurpose String?  @map("donation_purpose") @db.Text
+
+  // Payment Details
+  paymentStatus       String  @map("payment_status") @db.VarChar(20)
+  paymentMethod       String  @map("payment_method") @db.VarChar(20)
+  razorpayOrderId     String? @map("razorpay_order_id") @db.VarChar(100)
+  razorpayPaymentId   String? @map("razorpay_payment_id") @db.VarChar(100)
+  razorpaySignature   String? @map("razorpay_signature") @db.VarChar(255)
+
+  // Bank Transfer Details
+  bankName              String? @map("bank_name") @db.VarChar(255)
+  bankAccountLast4      String? @map("bank_account_last4") @db.VarChar(4)
+  transactionReference  String? @map("transaction_reference") @db.VarChar(100)
+
+  // Receipt & Delivery
+  receiptPdfUrl   String?   @map("receipt_pdf_url") @db.Text
+  whatsappSent    Boolean   @default(false) @map("whatsapp_sent")
+  whatsappSentAt  DateTime? @map("whatsapp_sent_at")
+  emailSent       Boolean   @default(false) @map("email_sent")
+  emailSentAt     DateTime? @map("email_sent_at")
+
+  // Metadata
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([receiptNumber])
+  @@index([userId])
+  @@index([paymentStatus])
+  @@index([createdAt(sort: Desc)])
+  @@index([amount])
+  @@index([userId, paymentStatus])
+  @@index([createdAt, paymentStatus])
+  @@map("donations")
+}
+
+model ReceiptSequence {
+  fiscalYear   String @id @map("fiscal_year") @db.VarChar(7)
+  lastSequence Int    @default(0) @map("last_sequence")
+
+  @@map("receipt_sequence")
+}
+
+// ============================================================
+// 3. POOJA BOOKING MODULE
+// ============================================================
+
+model PoojaService {
+  id              Int      @id @default(autoincrement()) @map("pooja_id")
+  poojaName       String   @map("pooja_name") @db.VarChar(255)
+  poojaNameKannada String?  @map("pooja_name_kannada") @db.VarChar(255)
+  poojaNameHindi   String?  @map("pooja_name_hindi") @db.VarChar(255)
+  description     String?  @db.Text
+  price           Decimal  @db.Decimal(10, 2)
+  durationMinutes Int      @default(60) @map("duration_minutes")
+  isActive        Boolean  @default(true) @map("is_active")
+  displayOrder    Int      @default(0) @map("display_order")
+  imageUrl        String?  @map("image_url") @db.Text
+
+  // Metadata
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  bookings PoojaBooking[]
+
+  @@index([isActive, displayOrder])
+  @@map("pooja_services")
+}
+
+model PoojaBooking {
+  id            String   @id @default(uuid()) @map("booking_id") @db.Uuid
+  bookingNumber String   @unique @map("booking_number") @db.VarChar(50)
+  userId        String?  @map("user_id") @db.Uuid
+
+  // User Information (denormalized)
+  userName      String   @map("user_name") @db.VarChar(255)
+  userPhone     String   @map("user_phone") @db.VarChar(15)
+  userEmail     String?  @map("user_email") @db.VarChar(255)
+  nakshatra     String   @db.VarChar(100)
+
+  // Pooja Details
+  poojaId    Int     @map("pooja_id")
+  poojaName  String  @map("pooja_name") @db.VarChar(255)
+  poojaPrice Decimal @map("pooja_price") @db.Decimal(10, 2)
+
+  // Scheduling
+  preferredDate      DateTime? @map("preferred_date") @db.Date
+  preferredTime      DateTime? @map("preferred_time") @db.Time
+  confirmedDate      DateTime? @map("confirmed_date") @db.Date
+  confirmedTime      DateTime? @map("confirmed_time") @db.Time
+  specialInstructions String?  @map("special_instructions") @db.Text
+
+  // Payment Details
+  paymentStatus     String  @map("payment_status") @db.VarChar(20)
+  paymentMethod     String? @map("payment_method") @db.VarChar(20)
+  razorpayOrderId   String? @map("razorpay_order_id") @db.VarChar(100)
+  razorpayPaymentId String? @map("razorpay_payment_id") @db.VarChar(100)
+  razorpaySignature String? @map("razorpay_signature") @db.VarChar(255)
+  transactionId     String? @map("transaction_id") @db.VarChar(100)
+
+  // Booking Status & Workflow
+  bookingStatus            String    @default("PENDING") @map("booking_status") @db.VarChar(20)
+  userConfirmationSent     Boolean   @default(false) @map("user_confirmation_sent")
+  userConfirmationSentAt   DateTime? @map("user_confirmation_sent_at")
+  adminNotificationSent    Boolean   @default(false) @map("admin_notification_sent")
+  adminNotificationSentAt  DateTime? @map("admin_notification_sent_at")
+  confirmedByAdminId       String?   @map("confirmed_by_admin_id") @db.Uuid
+  confirmedByAdminAt       DateTime? @map("confirmed_by_admin_at")
+  completedAt              DateTime? @map("completed_at")
+  cancellationReason       String?   @map("cancellation_reason") @db.Text
+  cancelledAt              DateTime? @map("cancelled_at")
+
+  // Metadata
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  poojaService  PoojaService @relation(fields: [poojaId], references: [id])
+  confirmedByAdmin AdminUser? @relation(fields: [confirmedByAdminId], references: [id])
+
+  @@index([bookingNumber])
+  @@index([userId])
+  @@index([userPhone])
+  @@index([bookingStatus])
+  @@index([paymentStatus])
+  @@index([preferredDate])
+  @@index([confirmedDate])
+  @@index([createdAt(sort: Desc)])
+  @@index([userId, bookingStatus])
+  @@index([createdAt, bookingStatus])
+  @@map("pooja_bookings")
+}
+
+model BookingSequence {
+  fiscalYear   String @id @map("fiscal_year") @db.VarChar(7)
+  lastSequence Int    @default(0) @map("last_sequence")
+
+  @@map("booking_sequence")
+}
+
+// ============================================================
+// 4. WHATSAPP GROUP MANAGEMENT
+// ============================================================
+
+model WhatsappGroup {
+  id               String   @id @map("group_id") @db.VarChar(100)
+  groupName        String   @map("group_name") @db.VarChar(255)
+  groupInviteLink  String?  @map("group_invite_link") @db.Text
+  participantCount Int      @default(0) @map("participant_count")
+  maxParticipants  Int      @default(1000) @map("max_participants")
+  isActive         Boolean  @default(true) @map("is_active")
+
+  // Metadata
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  members WhatsappGroupMember[]
+
+  @@map("whatsapp_groups")
+}
+
+model WhatsappGroupMember {
+  id          String   @id @default(uuid()) @db.Uuid
+  groupId     String   @map("group_id") @db.VarChar(100)
+  userId      String?  @map("user_id") @db.Uuid
+  phoneNumber String?  @map("phone_number") @db.VarChar(15)
+  status      String   @default("active") @db.VarChar(20)
+
+  // Metadata
+  addedAt   DateTime  @default(now()) @map("added_at")
+  removedAt DateTime? @map("removed_at")
+
+  // Relations
+  group WhatsappGroup @relation(fields: [groupId], references: [id])
+  user  User?         @relation(fields: [userId], references: [id])
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@index([status])
+  @@map("whatsapp_group_members")
+}
+
+model WhatsappFailedAddition {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String?  @map("user_id") @db.Uuid
+  phoneNumber  String?  @map("phone_number") @db.VarChar(15)
+  errorMessage String?  @map("error_message") @db.Text
+  retryCount   Int      @default(0) @map("retry_count")
+  resolved     Boolean  @default(false)
+
+  // Metadata
+  createdAt   DateTime  @default(now()) @map("created_at")
+  lastRetryAt DateTime? @map("last_retry_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([resolved])
+  @@map("whatsapp_failed_additions")
+}
+
+// ============================================================
+// 5. ADMIN MODULE
+// ============================================================
+
+model AdminUser {
+  id           String   @id @default(uuid()) @map("admin_id") @db.Uuid
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  fullName     String?  @map("full_name") @db.VarChar(255)
+  phoneNumber  String?  @map("phone_number") @db.VarChar(15)
+  role         String   @default("viewer") @db.VarChar(20)
+  isActive     Boolean  @default(true) @map("is_active")
+
+  // Metadata
+  lastLogin DateTime? @map("last_login")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  activityLogs     AdminActivityLog[]
+  confirmedBookings PoojaBooking[]
+  systemConfigUpdates SystemConfig[]
+
+  @@index([email])
+  @@index([isActive])
+  @@map("admin_users")
+}
+
+model AdminActivityLog {
+  id                String   @id @default(uuid()) @map("log_id") @db.Uuid
+  adminId           String?  @map("admin_id") @db.Uuid
+  actionType        String   @map("action_type") @db.VarChar(50)
+  actionDescription String?  @map("action_description") @db.Text
+  entityType        String?  @map("entity_type") @db.VarChar(50)
+  entityId          String?  @map("entity_id") @db.Uuid
+  ipAddress         String?  @map("ip_address") @db.VarChar(45)
+  userAgent         String?  @map("user_agent") @db.Text
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  admin AdminUser? @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([createdAt(sort: Desc)])
+  @@map("admin_activity_log")
+}
+
+// ============================================================
+// 6. SYSTEM CONFIGURATION
+// ============================================================
+
+model SystemConfig {
+  configKey   String     @id @map("config_key") @db.VarChar(100)
+  configValue String?    @map("config_value") @db.Text
+  configType  String     @default("string") @map("config_type") @db.VarChar(20)
+  description String?    @db.Text
+  updatedBy   String?    @map("updated_by") @db.Uuid
+  updatedAt   DateTime   @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  updatedByAdmin AdminUser? @relation(fields: [updatedBy], references: [id])
+
+  @@map("system_config")
+}

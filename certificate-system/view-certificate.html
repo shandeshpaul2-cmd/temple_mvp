@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temple Donation Certificate - Preview</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .certificate-container {
+            width: 210mm;
+            height: 297mm;
+            background: linear-gradient(135deg, #FFF8DC 0%, #FFFAF0 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        /* Ornate Border */
+        .border-frame {
+            position: absolute;
+            top: 15mm;
+            left: 15mm;
+            right: 15mm;
+            bottom: 15mm;
+            border: 3px solid #8B0000;
+            box-shadow: inset 0 0 0 2px #DAA520, inset 0 0 0 5px #8B0000;
+        }
+
+        /* Corner Decorations */
+        .corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px solid #8B0000;
+        }
+
+        .corner-tl {
+            top: 10mm;
+            left: 10mm;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-tr {
+            top: 10mm;
+            right: 10mm;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-bl {
+            bottom: 10mm;
+            left: 10mm;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-br {
+            bottom: 10mm;
+            right: 10mm;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* Decorative patterns */
+        .pattern-left, .pattern-right {
+            position: absolute;
+            width: 40px;
+            height: 200px;
+            background: linear-gradient(180deg, transparent, #DAA520, transparent);
+            opacity: 0.3;
+        }
+
+        .pattern-left {
+            left: 20mm;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .pattern-right {
+            right: 20mm;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Content */
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 25mm 30mm;
+            text-align: center;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 15px;
+        }
+
+        .om-symbol {
+            font-size: 48px;
+            color: #8B0000;
+            margin-bottom: 10px;
+            font-family: 'Cinzel', serif;
+        }
+
+        .temple-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle, #DAA520, #B8860B);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #8B0000;
+            border: 3px solid #8B0000;
+        }
+
+        .temple-name {
+            font-family: 'Cinzel', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #8B0000;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .temple-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* Title */
+        .certificate-title {
+            position: relative;
+            margin: 25px 0;
+        }
+
+        .title-text {
+            font-family: 'Cinzel', serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #DAA520;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .title-underline {
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #8B0000, transparent);
+            margin: 10px auto;
+        }
+
+        /* Deity Symbol */
+        .deity-symbol {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            background: radial-gradient(circle, #FFD700, #DAA520);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            border: 4px solid #8B0000;
+            box-shadow: 0 4px 15px rgba(139, 0, 0, 0.3);
+        }
+
+        /* Welcome Text */
+        .welcome-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            color: #8B0000;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        /* Certificate Text */
+        .certify-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: #333;
+            margin: 15px 0;
+            font-style: italic;
+        }
+
+        /* Donor Name */
+        .donor-name-container {
+            margin: 25px 0;
+        }
+
+        .donor-name {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: #000;
+            padding: 10px 40px;
+            border-bottom: 3px solid #8B0000;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        /* Description */
+        .description {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: #333;
+            line-height: 1.8;
+            margin: 20px 40px;
+        }
+
+        /* Message Box */
+        .message-box {
+            background: #fff;
+            border: 2px solid #DAA520;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message-box p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .message-box .highlight {
+            color: #8B0000;
+            font-weight: 600;
+        }
+
+        /* Details Box */
+        .details-box {
+            background: #fff;
+            border: 3px solid #8B0000;
+            border-radius: 10px;
+            padding: 25px 35px;
+            margin: 30px 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #8B0000;
+        }
+
+        .detail-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .amount {
+            font-size: 22px;
+            color: #006400;
+            font-weight: 700;
+        }
+
+        /* Blessing */
+        .blessing {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            font-style: italic;
+            color: #8B0000;
+            margin: 25px 40px;
+            line-height: 1.8;
+        }
+
+        /* Footer */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin: 30px 50px 0;
+            padding-top: 20px;
+        }
+
+        .seal, .signature {
+            text-align: center;
+        }
+
+        .seal-circle {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #8B0000;
+            border-radius: 50%;
+            background: radial-gradient(circle, #FFD700, #DAA520);
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #8B0000;
+        }
+
+        .seal-text, .signature-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .signature-line {
+            width: 150px;
+            border-top: 2px solid #000;
+            margin: 10px auto 5px;
+        }
+
+        /* Contact Info */
+        .contact-info {
+            text-align: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .contact-info a {
+            color: #8B0000;
+            text-decoration: none;
+        }
+
+        /* Decorative elements */
+        .divider {
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #DAA520, transparent);
+            margin: 15px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-container">
+        <!-- Ornate Border -->
+        <div class="border-frame"></div>
+
+        <!-- Corner Decorations -->
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <!-- Side Patterns -->
+        <div class="pattern-left"></div>
+        <div class="pattern-right"></div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Header -->
+            <div class="header">
+                <div class="om-symbol">ॐ</div>
+                <div class="temple-logo">🛕</div>
+                <div class="temple-name">Shri Ram Mandir</div>
+                <div class="temple-subtitle">Sacred Place of Worship</div>
+            </div>
+
+            <!-- Title -->
+            <div class="certificate-title">
+                <div class="title-text">Donation Certificate</div>
+                <div class="title-underline"></div>
+            </div>
+
+            <!-- Deity Symbol -->
+            <div class="deity-symbol">🙏</div>
+
+            <!-- Welcome Message -->
+            <div class="welcome-text">
+                Welcome to the Temple Devotee Family!
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Certificate Text -->
+            <div class="certify-text">
+                This is to proudly certify that
+            </div>
+
+            <!-- Donor Name -->
+            <div class="donor-name-container">
+                <div class="donor-name">Ramesh Kumar Sharma</div>
+            </div>
+
+            <!-- Description -->
+            <div class="description">
+                has made a sacred contribution to <strong>Shri Ram Mandir</strong><br>
+                with devotion and faith in <strong>Lord Ram</strong>
+            </div>
+
+            <!-- Message Box -->
+            <div class="message-box">
+                <p>
+                    You are now part of a growing family of believers who stand for<br>
+                    <span class="highlight">◆</span> Dharma over doubt
+                    <span class="highlight">◆</span> Unity over division
+                    <span class="highlight">◆</span> Legacy over trends
+                </p>
+            </div>
+
+            <!-- Donation Details -->
+            <div class="details-box">
+                <div class="detail-row">
+                    <span class="detail-label">Receipt Number</span>
+                    <span class="detail-value">TMPL/FY/2024-25/00123</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Donation Amount</span>
+                    <span class="detail-value amount">₹ 5,000.00</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date of Donation</span>
+                    <span class="detail-value">11th October 2025</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Payment Mode</span>
+                    <span class="detail-value">UPI Payment</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Transaction ID</span>
+                    <span class="detail-value">razorpay_ABC123XYZ456</span>
+                </div>
+            </div>
+
+            <!-- Blessing -->
+            <div class="blessing">
+                May your devotion bring peace, prosperity, and divine blessings<br>
+                to you and your family
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <div class="seal">
+                    <div class="seal-circle">TEMPLE<br>SEAL</div>
+                    <div class="seal-text">Official Seal</div>
+                </div>
+                <div class="signature">
+                    <div class="signature-line"></div>
+                    <div class="signature-text">Authorized Signatory</div>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="contact-info">
+                Contact: +91 93031 66287 | contact@rammandir.org<br>
+                Website: <a href="https://www.rammandir.org">www.rammandir.org</a><br>
+                Ram Janmabhoomi, Ayodhya, Uttar Pradesh - 224123
+            </div>
+        </div>
+    </div>
+</body>
+</html>
