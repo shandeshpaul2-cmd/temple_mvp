@@ -176,6 +176,7 @@ export default function PaymentPortal({ items, userInfo, onBack, onSuccess, onEr
             preferredDate: items[0]?.metadata?.preferredDate,
             preferredTime: items[0]?.metadata?.preferredTime,
             nakshatra: items[0]?.metadata?.nakshatra,
+            gotra: items[0]?.metadata?.gotra,
           },
           isPoojaBooking,
           items: items,

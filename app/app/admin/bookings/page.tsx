@@ -25,6 +25,7 @@ interface Booking {
   userPhone: string
   userEmail?: string
   nakshatra?: string
+  gothra?: string
   poojaName: string
   poojaPrice: number
   preferredDate?: string
@@ -335,10 +336,19 @@ export default function AdminBookings() {
                             {booking.userName}
                           </p>
                           <p className="text-xs text-gray-500">{booking.userPhone}</p>
-                          {booking.nakshatra && (
-                            <p className="text-xs text-gray-400">
-                              {booking.nakshatra}
-                            </p>
+                          {(booking.nakshatra || booking.gothra) && (
+                            <div className="flex flex-wrap gap-1">
+                              {booking.nakshatra && (
+                                <span className="text-xs text-gray-400 bg-gray-100 px-1 py-0.5 rounded">
+                                  {booking.nakshatra}
+                                </span>
+                              )}
+                              {booking.gothra && (
+                                <span className="text-xs text-gray-400 bg-blue-50 px-1 py-0.5 rounded">
+                                  {booking.gothra}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
                       </td>

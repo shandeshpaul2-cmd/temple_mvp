@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
         { bookingNumber: { contains: search } },
         { receiptNumber: { contains: search } },
         { nakshatra: { contains: search } },
+        { gothra: { contains: search } },
         { specialInstructions: { contains: search } },
         { preferredTime: { contains: search } },
         {

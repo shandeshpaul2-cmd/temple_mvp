@@ -20,6 +20,7 @@ interface FormData {
   name: string
   phone: string
   nakshatra: string
+  gotra: string
   date: string
   timeSlot: string
 }
@@ -65,6 +66,38 @@ const NAKSHATRAS = [
   'Revati (रेवती)',
 ]
 
+const GOTRAS = [
+  'Agastya (अगस्त्य)',
+  'Atri (अत्रि)',
+  'Bharadwaja (भरद्वाज)',
+  'Bhrigu (भृगु)',
+  'Chandilya (चाण्डिल्य)',
+  'Garga (गर्ग)',
+  'Harita (हरित)',
+  'Jamadagni (जमदग्नि)',
+  'Kashyapa (कश्यप)',
+  'Kaundinya (कौण्डिन्य)',
+  'Katyayana (कात्यायन)',
+  'Kraunchi (क्रौंची)',
+  'Krushna (कृष्ण)',
+  'Kubera (कुबेर)',
+  'Lauhitya (लौहित्य)',
+  'Maanava (मानव)',
+  'Mandavya (माण्डव्य)',
+  'Maudgalya (मौद्गल्य)',
+  'Parashara (पराशर)',
+  'Paurava (पौरव)',
+  'Pulastya (पुलस्त्य)',
+  'Shandilya (शाण्डिल्य)',
+  'Shunaka (शुनक)',
+  'Upamanyu (उपमन्यु)',
+  'Vashista (वशिष्ठ)',
+  'Vatsa (वत्स)',
+  'Vishvamitra (विश्वामित्र)',
+  'Yaska (यास्क)',
+  'Others (अन्य)',
+]
+
 function BookingFormPageContent() {
   const { t } = useLanguage()
   const router = useRouter()
@@ -79,6 +112,7 @@ function BookingFormPageContent() {
     name: '',
     phone: '',
     nakshatra: '',
+    gotra: '',
     date: '',
     timeSlot: '',
   })
@@ -163,6 +197,7 @@ function BookingFormPageContent() {
       newErrors.nakshatra = 'Please select your Nakshatra'
     }
 
+    
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -214,6 +249,7 @@ function BookingFormPageContent() {
         preferredDate: formData.date,
         preferredTime: formData.timeSlot,
         nakshatra: formData.nakshatra,
+        gotra: formData.gotra,
       },
     },
   ] : []
@@ -332,7 +368,7 @@ function BookingFormPageContent() {
                 {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
               </div>
 
-              <div className="md:col-span-2">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   <Star className="inline w-4 h-4 mr-1" />
                   Nakshatra (Birth Star) *
@@ -350,6 +386,23 @@ function BookingFormPageContent() {
                   ))}
                 </select>
                 {errors.nakshatra && <p className="text-red-500 text-xs mt-1">{errors.nakshatra}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <User className="inline w-4 h-4 mr-1" />
+                  Gotra (Family Name)
+                </label>
+                <input
+                  type="text"
+                  value={formData.gotra}
+                  onChange={(e) => handleInputChange('gotra', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-temple-gold focus:border-transparent ${
+                    errors.gotra ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter your gotra (e.g., Bharadwaja, Kashyapa)"
+                />
+                {errors.gotra && <p className="text-red-500 text-xs mt-1">{errors.gotra}</p>}
               </div>
             </div>
           </div>

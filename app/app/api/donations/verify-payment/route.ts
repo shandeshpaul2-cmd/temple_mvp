@@ -161,6 +161,7 @@ export async function POST(request: NextRequest) {
           userPhone: donorInfo.phoneNumber,
           userEmail: null,
           nakshatra: donorInfo?.nakshatra || null,
+          gothra: donorInfo?.gotra || null, // Note: using 'gothra' to match database schema
           specialInstructions: null, // We removed this from the form
           userId: user.id,
           bookingStatus: 'PENDING',
@@ -177,6 +178,7 @@ export async function POST(request: NextRequest) {
         userName: booking.userName,
         userPhone: booking.userPhone,
         nakshatra: booking.nakshatra,
+        gothra: booking.gothra,
         poojaPrice: booking.poojaPrice,
         receiptNumber: booking.receiptNumber,
         bookingStatus: booking.bookingStatus,

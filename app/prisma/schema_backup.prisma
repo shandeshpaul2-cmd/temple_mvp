@@ -1,3 +1,4 @@
+
 // Temple Management System - Prisma Schema for SQLite
 
 generator client {
