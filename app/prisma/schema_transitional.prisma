@@ -80,7 +80,7 @@ model Donation {
   updatedAt DateTime @updatedAt
 
   // Relations
-  user User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id], onDelete: "SetNull")
 
   @@map("donations")
 }
@@ -135,9 +135,9 @@ model PoojaBooking {
 
   // Scheduling
   preferredDate DateTime?
-  preferredTime String?
+  preferredTime DateTime?
   confirmedDate DateTime?
-  confirmedTime String?
+  confirmedTime DateTime?
   specialInstructions String?
 
   // Payment Details
@@ -168,7 +168,7 @@ model PoojaBooking {
   updatedAt DateTime @updatedAt
 
   // Relations
-  user        User?        @relation(fields: [userId], references: [id])
+  user        User?        @relation(fields: [userId], references: [id], onDelete: "SetNull")
   poojaService PoojaService @relation(fields: [poojaId], references: [id])
 
   @@map("pooja_bookings")
@@ -190,16 +190,6 @@ model BookingSequence {
   lastSequence Int    @default(0)
 
   @@map("booking_sequence")
-}
-
-model DailySequence {
-  id           String @id @default(cuid())
-  type         String // 'BOOKING' or 'DONATION'
-  date         String // DDMMYY format
-  lastSequence Int    @default(0)
-
-  @@unique([type, date])
-  @@map("daily_sequence")
 }
 
 // ============================================================

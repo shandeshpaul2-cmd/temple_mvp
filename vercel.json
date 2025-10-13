@@ -1,0 +1,13 @@
+{
+  "buildCommand": "cd app && npm run build",
+  "outputDirectory": "app/.next",
+  "installCommand": "cd app && npm install",
+  "functions": {
+    "app/app/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "NEXT_PUBLIC_TEMPLE_NAME": "Shri Raghavendra Swamy Brundavana Sannidhi"
+  }
+}

@@ -12,16 +12,30 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50">
       <div className="container mx-auto px-3 sm:px-6 lg:px-8 max-w-7xl">
-        {/* Language Selector */}
-        <div className="flex justify-end pt-3">
+        {/* Admin Login and Language Selector */}
+        <div className="flex justify-between items-center pt-3">
+          <Link
+            href="/admin/login"
+            className="flex items-center justify-center w-8 h-8 text-temple-maroon hover:text-temple-gold transition-colors border border-temple-maroon/30 hover:border-temple-gold/50 rounded-md"
+            title="Admin Login"
+          >
+            <div className="w-4 h-4 rounded-full border-2 border-current"></div>
+          </Link>
           <LanguageSelector />
         </div>
 
         {/* Compact Hero Section */}
         <header className="text-center pt-4 pb-6 sm:pt-8 sm:pb-10">
-          {/* Om Symbol */}
-          <div className="om-symbol text-4xl sm:text-6xl text-temple-maroon mb-3 drop-shadow-lg">
-            ॐ
+          {/* Sri Raghavendra Swamy Logo - Cropped to remove text */}
+          <div className="mb-3 sm:mb-4">
+            <div className="w-24 h-24 sm:w-36 sm:h-36 mx-auto overflow-hidden rounded-full drop-shadow-lg">
+              <img
+                src="/sri-raghavendra-logo.png"
+                alt="Sri Raghavendra Swamy"
+                className="w-full h-full object-cover object-center"
+                style={{ objectPosition: 'center 35%' }}
+              />
+            </div>
           </div>
 
           {/* Temple Title */}

@@ -23,24 +23,10 @@ export function LocationCard() {
         </p>
       </div>
 
-      {/* Map Card */}
+      {/* Location Card */}
       <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border-2 border-temple-gold/20 overflow-hidden">
         {/* Top Accent Bar */}
         <div className="h-1.5 bg-gradient-to-r from-temple-maroon via-temple-gold to-temple-maroon"></div>
-
-        {/* Map Container */}
-        <div className="relative w-full h-48 sm:h-64 bg-gray-100">
-          <iframe
-            src={googleMapsEmbed}
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="w-full h-full"
-          ></iframe>
-        </div>
 
         {/* Address & Actions Section */}
         <div className="p-4 sm:p-6 space-y-4">

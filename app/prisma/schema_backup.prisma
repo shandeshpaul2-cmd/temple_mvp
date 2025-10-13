@@ -1,0 +1,138 @@
+// Temple Management System - Prisma Schema for SQLite
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// 1. DONATIONS MODULE (Simplified for development)
+// ============================================================
+
+model Donation {
+  id            String   @id @default(uuid())
+  receiptNumber String   @unique
+  userId        String?
+
+  // Donation Details
+  amount          Float
+  donationType    String   @default("General")
+  donationPurpose String?
+
+  // Payment Details
+  paymentStatus       String   @default("PENDING")
+  paymentMethod       String   @default("razorpay")
+  razorpayOrderId     String?
+  razorpayPaymentId   String?
+  razorpaySignature   String?
+
+  // Receipt & Delivery
+  receiptPdfUrl   String?
+  whatsappSent    Boolean   @default(false)
+  whatsappSentAt  DateTime?
+  emailSent       Boolean   @default(false)
+  emailSentAt     DateTime?
+
+  // Metadata
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("donations")
+}
+
+model ReceiptSequence {
+  fiscalYear   String @id
+  lastSequence Int    @default(0)
+
+  @@map("receipt_sequence")
+}
+
+// ============================================================
+// 2. POOJA BOOKING MODULE (Simplified for development)
+// ============================================================
+
+model PoojaService {
+  id              Int      @id @default(autoincrement())
+  poojaName       String
+  poojaNameKannada String?
+  poojaNameHindi   String?
+  description     String?
+  price           Float
+  durationMinutes Int      @default(60)
+  isActive        Boolean  @default(true)
+  displayOrder    Int      @default(0)
+  imageUrl        String?
+
+  // Metadata
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  bookings PoojaBooking[]
+
+  @@map("pooja_services")
+}
+
+model PoojaBooking {
+  id            String   @id @default(uuid())
+  bookingNumber String   @unique
+  userId        String?
+
+  // User Information (denormalized)
+  userName      String
+  userPhone     String
+  userEmail     String?
+  nakshatra     String?
+
+  // Pooja Details
+  poojaId    Int
+  poojaName  String
+  poojaPrice Float
+
+  // Scheduling
+  preferredDate      DateTime?
+  preferredTime      DateTime?
+  confirmedDate      DateTime?
+  confirmedTime      DateTime?
+  specialInstructions String?
+
+  // Payment Details
+  paymentStatus     String    @default("PENDING")
+  paymentMethod     String?
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  transactionId     String?
+
+  // Booking Status & Workflow
+  bookingStatus            String    @default("PENDING")
+  userConfirmationSent     Boolean   @default(false)
+  userConfirmationSentAt   DateTime?
+  adminNotificationSent    Boolean   @default(false)
+  adminNotificationSentAt  DateTime?
+  confirmedByAdminId       String?
+  confirmedByAdminAt       DateTime?
+  completedAt              DateTime?
+  cancellationReason       String?
+  cancelledAt              DateTime?
+
+  // Metadata
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  poojaService  PoojaService @relation(fields: [poojaId], references: [id])
+
+  @@map("pooja_bookings")
+}
+
+model BookingSequence {
+  fiscalYear   String @id
+  lastSequence Int    @default(0)
+
+  @@map("booking_sequence")
+}

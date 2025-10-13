@@ -15,6 +15,29 @@ function SuccessContent() {
   const donationId = searchParams.get('id')
 
   const [isLoading, setIsLoading] = useState(false)
+  const [donationDetails, setDonationDetails] = useState<any>(null)
+
+  // Fetch donation details from admin API
+  useEffect(() => {
+    if (receiptNumber) {
+      fetchDonationDetails()
+    }
+  }, [receiptNumber])
+
+  const fetchDonationDetails = async () => {
+    try {
+      if (!receiptNumber) return
+      const response = await fetch(`/api/donations/${encodeURIComponent(receiptNumber)}`)
+      if (response.ok) {
+        const donation = await response.json()
+        if (donation) {
+          setDonationDetails(donation)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching donation details:', error)
+    }
+  }
 
   if (!receiptNumber || !donationId) {
     return (
@@ -88,6 +111,52 @@ function SuccessContent() {
                 {receiptNumber}
               </p>
             </div>
+
+            {/* Donation Details */}
+            {donationDetails && (
+              <div className="bg-gray-50 rounded-xl p-6 mb-8">
+                <h3 className="font-cinzel text-xl font-bold text-temple-maroon mb-4">Donation Details</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Donation Type:</span>
+                    <span className="font-medium text-temple-maroon">{donationDetails.donationType}</span>
+                  </div>
+                  {donationDetails.donationPurpose && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Purpose:</span>
+                      <span className="font-medium">{donationDetails.donationPurpose}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Donor Name:</span>
+                    <span className="font-medium">{donationDetails.userName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Phone:</span>
+                    <span className="font-medium">{donationDetails.userPhone}</span>
+                  </div>
+                  <div className="border-t pt-3 mt-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-gray-700">Amount Donated:</span>
+                      <div className="flex items-center gap-1 text-temple-maroon font-bold text-lg">
+                        <span>₹</span>
+                        <span>{donationDetails.amount?.toLocaleString('en-IN') || '0'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Status:</span>
+                    <span className="font-medium text-green-600">✓ Successful</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Date:</span>
+                    <span className="font-medium">
+                      {donationDetails.createdAt ? new Date(donationDetails.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* What's Next Section */}
             <div className="bg-gradient-to-r from-orange-50 to-temple-cream/50 rounded-xl p-6 mb-8">

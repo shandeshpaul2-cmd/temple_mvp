@@ -1,0 +1,268 @@
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+// Real pooja services for Sri Raghavendra Swamy Brundavana
+const poojaServices = [
+  {
+    poojaName: 'Sri Raghavendra Swamy Maha Aradhane',
+    poojaNameKannada: 'ಶ್ರೀ ರಾಘವೇಂದ್ರ ಸ್ವಾಮಿ ಮಹಾರಾಧನೆ',
+    poojaNameHindi: 'श्री राघवेंद्र स्वामी महाराधन',
+    description: 'Complete aradhane with all traditional rituals including abhisheka, alankara, naivedya, and archana. Includes personal blessings and prasadam distribution.',
+    price: 1101,
+    durationMinutes: 120,
+    displayOrder: 1,
+    isActive: true,
+    maxBookingsPerSlot: 3,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 48
+  },
+  {
+    poojaName: 'Sri Satyanarayana Swamy Vratha',
+    poojaNameKannada: 'ಶ್ರೀ ಸತ್ಯನಾರಾಯಣ ಸ್ವಾಮಿ ವ್ರತ',
+    poojaNameHindi: 'श्री सत्यनारायण स्वामी व्रत',
+    description: 'Traditional Satyanarayana vratha with katha, puja, and homa. Perfect for special occasions, housewarming, or seeking divine blessings for prosperity.',
+    price: 801,
+    durationMinutes: 180,
+    displayOrder: 2,
+    isActive: true,
+    maxBookingsPerSlot: 4,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 24
+  },
+  {
+    poojaName: 'Sri Lakshmi Ganapathi Homa',
+    poojaNameKannada: 'ಶ್ರೀ ಲಕ್ಷ್ಮಿ ಗಣಪತಿ ಹೋಮ',
+    poojaNameHindi: 'श्री लक्ष्मी गणपति होम',
+    description: 'Combined homa for removing obstacles and invoking prosperity. Includes Ganapathi homa for success and Lakshmi homa for wealth and prosperity.',
+    price: 1251,
+    durationMinutes: 150,
+    displayOrder: 3,
+    isActive: true,
+    maxBookingsPerSlot: 2,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 36
+  },
+  {
+    poojaName: 'Sri Navagraha Shanti',
+    poojaNameKannada: 'ಶ್ರೀ ನವಗ್ರಹ ಶಾಂತಿ',
+    poojaNameHindi: 'श्री नवग्रह शांति',
+    description: 'Comprehensive Navagraha shanti puja to pacify all nine planets and remove astrological obstacles. Includes individual archana for each graha.',
+    price: 2101,
+    durationMinutes: 240,
+    displayOrder: 4,
+    isActive: true,
+    maxBookingsPerSlot: 2,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 48
+  },
+  {
+    poojaName: 'Sri Mrityunjaya Homa',
+    poojaNameKannada: 'ಶ್ರೀ ಮೃತ್ಯುಂಜಯ ಹೋಮ',
+    poojaNameHindi: 'श्री मृत्युंजय होम',
+    description: 'Powerful Mrityunjaya homa for health, longevity, and overcoming serious illnesses. Dedicated to Lord Shiva for ultimate healing.',
+    price: 1601,
+    durationMinutes: 180,
+    displayOrder: 5,
+    isActive: true,
+    maxBookingsPerSlot: 2,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 24
+  },
+  {
+    poojaName: 'Sri Sudarshana Homa',
+    poojaNameKannada: 'ಶ್ರೀ ಸುದರ್ಶನ ಹೋಮ',
+    poojaNameHindi: 'श्री सुदर्शन होम',
+    description: 'Powerful Sudarshana homa for removing negative energies, evil forces, and bringing protection. Includes Sudarshana japa and archana.',
+    price: 1851,
+    durationMinutes: 200,
+    displayOrder: 6,
+    isActive: true,
+    maxBookingsPerSlot: 2,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 36
+  },
+  {
+    poojaName: 'Sri Saneeshwara Shanti',
+    poojaNameKannada: 'ಶ್ರೀ ಶನೀಶ್ವರ ಶಾಂತಿ',
+    poojaNameHindi: 'श्री शनेश्वर शांति',
+    description: 'Special shani shanti puja and homa for reducing Saturn malefic effects, overcoming delays, and bringing stability in life and career.',
+    price: 951,
+    durationMinutes: 160,
+    displayOrder: 7,
+    isActive: true,
+    maxBookingsPerSlot: 3,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 24
+  },
+  {
+    poojaName: 'Sri Mahalakshmi Kubera Homa',
+    poojaNameKannada: 'ಶ್ರೀ ಮಹಾಲಕ್ಷ್ಮಿ ಕುಬೇರ ಹೋಮ',
+    poojaNameHindi: 'श्री महालक्ष्मी कुबेर होम',
+    description: 'Combined Lakshmi and Kubera homa for immense wealth, prosperity, and financial stability. Ideal for business growth and abundance.',
+    price: 2501,
+    durationMinutes: 210,
+    displayOrder: 8,
+    isActive: true,
+    maxBookingsPerSlot: 2,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 48
+  },
+  {
+    poojaName: 'Sri Saraswathi Devi Puja',
+    poojaNameKannada: 'ಶ್ರೀ ಸರಸ್ವತಿ ದೇವಿ ಪೂಜೆ',
+    poojaNameHindi: 'श्री सरस्वती देवी पूजा',
+    description: 'Dedicated puja to Goddess Saraswathi for knowledge, education, wisdom, and success in studies. Perfect for students and those in academics.',
+    price: 551,
+    durationMinutes: 90,
+    displayOrder: 9,
+    isActive: true,
+    maxBookingsPerSlot: 5,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 12
+  },
+  {
+    poojaName: 'Sri Dhanvanthari Puja',
+    poojaNameKannada: 'ಶ್ರೀ ಧನ್ವಂತರಿ ಪೂಜೆ',
+    poojaNameHindi: 'श्री धन्वंतरि पूजा',
+    description: 'Puja to Lord Dhanvanthari, the divine physician, for good health, healing from diseases, and medical professionals success.',
+    price: 651,
+    durationMinutes: 100,
+    displayOrder: 10,
+    isActive: true,
+    maxBookingsPerSlot: 4,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 12
+  },
+  {
+    poojaName: 'Sri Rudrabhisheka',
+    poojaNameKannada: 'ಶ್ರೀ ರುದ್ರಾಭಿಷೇಕ',
+    poojaNameHindi: 'श्री रुद्राभिषेक',
+    description: 'Traditional Rudrabhisheka with chanting of Sri Rudram and Chamakam. Powerful for removing negative karma and receiving Lord Shiva blessings.',
+    price: 1351,
+    durationMinutes: 180,
+    displayOrder: 11,
+    isActive: true,
+    maxBookingsPerSlot: 3,
+    requiresAdvanceNotice: true,
+    advanceNoticeHours: 24
+  }
+]
+
+  // Check if services already exist
+  const existingCount = await prisma.poojaService.count()
+
+  if (existingCount === 0) {
+    await prisma.poojaService.createMany({
+      data: poojaServices,
+    })
+  } else {
+    console.log('⏭️  Pooja Services already exist, skipping...')
+  }
+
+  console.log(`✅ Created ${poojaServices.length} Pooja Services`)
+
+  // Seed System Configuration
+  console.log('⚙️  Seeding System Configuration...')
+
+  const configs = [
+    {
+      configKey: 'temple_name',
+      configValue: 'Guru Seva Mandali',
+      description: 'Temple name for receipts and certificates',
+    },
+    {
+      configKey: 'temple_deity',
+      configValue: 'Shri Raghavendra Swamy',
+      description: 'Temple deity name',
+    },
+    {
+      configKey: 'temple_subtitle',
+      configValue: 'Brundavana Sannidhi',
+      description: 'Temple subtitle',
+    },
+    {
+      configKey: 'temple_address',
+      configValue: 'No. 9/2, Damodhara Mudaliar Street, Halasuru',
+      description: 'Temple address line 1',
+    },
+    {
+      configKey: 'temple_city',
+      configValue: 'Bangalore',
+      description: 'City',
+    },
+    {
+      configKey: 'temple_state',
+      configValue: 'Karnataka',
+      description: 'State',
+    },
+    {
+      configKey: 'temple_pincode',
+      configValue: '560 008',
+      description: 'Pincode',
+    },
+    {
+      configKey: 'temple_phone_1',
+      configValue: '9902820105',
+      description: 'Primary contact number',
+    },
+    {
+      configKey: 'temple_phone_2',
+      configValue: '7019337306',
+      description: 'Secondary contact number',
+    },
+    {
+      configKey: 'temple_email',
+      configValue: 'contact@gurusevamandali.org',
+      description: 'Contact email',
+    },
+    {
+      configKey: 'razorpay_enabled',
+      configValue: 'true',
+      configType: 'boolean',
+      description: 'Enable Razorpay payments',
+    },
+    {
+      configKey: 'whatsapp_enabled',
+      configValue: 'true',
+      configType: 'boolean',
+      description: 'Enable WhatsApp notifications',
+    },
+    {
+      configKey: 'fiscal_year_start_month',
+      configValue: '4',
+      configType: 'number',
+      description: 'Fiscal year starts in April',
+    },
+  ]
+
+  for (const config of configs) {
+    await prisma.systemConfig.upsert({
+      where: { configKey: config.configKey },
+      update: {
+        configValue: config.configValue,
+        configType: config.configType || 'string',
+        description: config.description,
+      },
+      create: {
+        configKey: config.configKey,
+        configValue: config.configValue,
+        configType: config.configType || 'string',
+        description: config.description,
+      },
+    })
+  }
+
+  console.log(`✅ Created ${configs.length} System Configuration entries`)
+
+  console.log('🎉 Database seed completed successfully!')
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Error seeding database:', e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

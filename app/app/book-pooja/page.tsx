@@ -12,7 +12,6 @@ interface PoojaService {
   poojaName: string
   description: string
   price: number
-  durationMinutes: number
   displayOrder: number
 }
 
@@ -59,9 +58,16 @@ export default function BookPoojaPage() {
           </Link>
 
           <div className="text-center">
-            {/* Om Symbol */}
-            <div className="om-symbol text-3xl sm:text-4xl text-temple-maroon mb-2 drop-shadow-lg">
-              ॐ
+            {/* Sri Raghavendra Swamy Logo - Cropped to remove text */}
+            <div className="mb-2">
+              <div className="w-20 h-20 sm:w-28 sm:h-28 mx-auto overflow-hidden rounded-full drop-shadow-lg">
+                <img
+                  src="/sri-raghavendra-logo.png"
+                  alt="Sri Raghavendra Swamy"
+                  className="w-full h-full object-cover object-center"
+                  style={{ objectPosition: 'center 35%' }}
+                />
+              </div>
             </div>
 
             <h1 className="font-cinzel text-xl sm:text-3xl font-bold text-temple-maroon mb-1 sm:mb-2">
@@ -80,66 +86,8 @@ export default function BookPoojaPage() {
           </div>
         </div>
 
-        {/* Services List - Compact Design */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="w-10 h-10 border-4 border-temple-maroon border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-              <p className="text-gray-600 text-sm">Loading services...</p>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl shadow-xl border-2 border-temple-gold/20 overflow-hidden mb-6">
-            {/* Top Accent */}
-            <div className="h-1.5 bg-gradient-to-r from-temple-maroon via-temple-gold to-temple-maroon"></div>
-
-            {/* Services List */}
-            <div className="divide-y divide-gray-100">
-              {services.map((service, index) => (
-                <div
-                  key={service.id}
-                  className="group hover:bg-temple-cream/30 transition-all duration-200 cursor-pointer"
-                  onClick={() => handleSelectService(service.id)}
-                >
-                  <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
-                    {/* Number Badge */}
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-temple-gold/20 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-temple-gold/30 transition-colors">
-                      <span className="text-temple-maroon font-bold text-sm sm:text-base">{index + 1}</span>
-                    </div>
-
-                    {/* Service Details */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-cinzel text-sm sm:text-base font-bold text-temple-maroon mb-0.5 sm:mb-1 group-hover:text-temple-gold transition-colors truncate">
-                        {service.poojaName}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-gray-600 line-clamp-1 sm:line-clamp-2 mb-1 sm:mb-2">
-                        {service.description}
-                      </p>
-                      <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
-                        <div className="flex items-center gap-1 text-temple-maroon font-semibold">
-                          <span>₹{service.price.toFixed(0)}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="hidden sm:inline">{service.durationMinutes} min</span>
-                          <span className="sm:hidden">{service.durationMinutes}m</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Book Button */}
-                    <button className="flex-shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-temple-maroon to-red-700 text-white rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm group-hover:shadow-lg transition-all duration-300 whitespace-nowrap">
-                      Book Now
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Information Section - Compact */}
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-temple-gold/20 p-4 sm:p-6">
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-temple-gold/20 p-4 sm:p-6 mb-6">
           <h2 className="font-cinzel text-base sm:text-xl font-bold text-temple-maroon mb-3 sm:mb-4 text-center">
             How It Works
           </h2>
@@ -170,6 +118,60 @@ export default function BookPoojaPage() {
             </div>
           </div>
         </div>
+
+        {/* Services List - Compact Design */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="w-10 h-10 border-4 border-temple-maroon border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+              <p className="text-gray-600 text-sm">Loading services...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl shadow-xl border-2 border-temple-gold/20 overflow-hidden">
+            {/* Top Accent */}
+            <div className="h-1.5 bg-gradient-to-r from-temple-maroon via-temple-gold to-temple-maroon"></div>
+
+            {/* Services List */}
+            <div className="divide-y divide-gray-100">
+              {services.map((service, index) => (
+                <div
+                  key={service.id}
+                  className="group hover:bg-temple-cream/30 transition-all duration-200 cursor-pointer"
+                  onClick={() => handleSelectService(service.id)}
+                >
+                  <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                    {/* Number Badge */}
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-temple-gold/20 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-temple-gold/30 transition-colors">
+                      <span className="text-temple-maroon font-bold text-sm sm:text-base">{index + 1}</span>
+                    </div>
+
+                    {/* Service Details */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-cinzel text-sm sm:text-base font-bold text-temple-maroon mb-0.5 sm:mb-1 group-hover:text-temple-gold transition-colors truncate">
+                        {service.poojaName}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-gray-600 line-clamp-1 sm:line-clamp-2 mb-1 sm:mb-2">
+                        {service.description}
+                      </p>
+                      <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
+                        <div className="flex items-center gap-1 text-temple-maroon font-semibold">
+                          <IndianRupee className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span>{service.price.toFixed(0)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Book Button */}
+                    <button className="flex-shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-temple-maroon to-red-700 text-white rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm group-hover:shadow-lg transition-all duration-300 whitespace-nowrap">
+                      Book Now
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

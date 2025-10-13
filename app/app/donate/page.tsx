@@ -1,28 +1,23 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Heart, User, Phone, Mail, MapPin, IndianRupee, MessageSquare } from 'lucide-react'
+import { ArrowLeft, Heart, User, Phone, IndianRupee, MessageSquare } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { Input } from '@/components/ui/Input'
 import { TextArea } from '@/components/ui/TextArea'
 import { Button } from '@/components/ui/Button'
-import { useRazorpay } from '@/hooks/useRazorpay'
+import PaymentPortal, { PaymentItem } from '@/components/payment/PaymentPortal'
 
 export default function DonatePage() {
   const { t } = useLanguage()
   const router = useRouter()
-  const { isLoaded, openRazorpay } = useRazorpay()
-  const [isLoading, setIsLoading] = useState(false)
+  const [showPayment, setShowPayment] = useState(false)
 
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNumber: '',
-    email: '',
-    city: '',
-    state: '',
-    pincode: '',
     amount: '',
     donationPurpose: '',
   })
@@ -55,10 +50,6 @@ export default function DonatePage() {
       newErrors.phoneNumber = 'Please enter a valid 10-digit phone number'
     }
 
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address'
-    }
-
     if (!formData.amount.trim()) {
       newErrors.amount = 'Amount is required'
     } else if (isNaN(Number(formData.amount)) || Number(formData.amount) <= 0) {
@@ -69,100 +60,64 @@ export default function DonatePage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handlePaymentSuccess = async (razorpayResponse: any, donationId: string) => {
-    try {
-      // Verify payment with backend
-      const response = await fetch('/api/donations/verify-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          razorpay_order_id: razorpayResponse.razorpay_order_id,
-          razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-          razorpay_signature: razorpayResponse.razorpay_signature,
-          donationId,
-          donorInfo: formData,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        // Navigate to success page with receipt number
-        router.push(`/donate/success?receipt=${data.receiptNumber}&id=${data.donationId}`)
-      } else {
-        alert('Payment verification failed. Please contact support.')
-      }
-    } catch (error) {
-      console.error('Error verifying payment:', error)
-      alert('Something went wrong. Please contact support.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Donation form submitted:', formData)
 
     if (!validateForm()) {
+      console.log('Donation form validation failed:', errors)
       return
     }
 
-    if (!isLoaded) {
-      alert('Payment gateway is loading. Please try again.')
-      return
-    }
-
-    setIsLoading(true)
-
-    try {
-      // Create Razorpay order
-      const response = await fetch('/api/donations/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: parseFloat(formData.amount),
-          donorInfo: formData,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create order')
-      }
-
-      // Open Razorpay checkout
-      openRazorpay({
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
-        amount: data.amount,
-        currency: data.currency,
-        name: 'Guru Seva Mandali',
-        description: `Donation to ${t.templeName}`,
-        order_id: data.orderId,
-        prefill: {
-          name: formData.fullName,
-          email: formData.email,
-          contact: formData.phoneNumber,
-        },
-        theme: {
-          color: '#8B0000',
-        },
-        handler: (response: any) => {
-          handlePaymentSuccess(response, data.donationId)
-        },
-        modal: {
-          ondismiss: () => {
-            setIsLoading(false)
-          },
-        },
-      })
-    } catch (error) {
-      console.error('Error:', error)
-      alert('Something went wrong. Please try again.')
-      setIsLoading(false)
-    }
+    console.log('Donation form validation passed, showing payment portal')
+    setShowPayment(true)
   }
 
+  const handlePaymentSuccess = (receiptNumber: string, paymentId: string) => {
+    router.push(`/donate/success?receipt=${receiptNumber}&id=${paymentId}`)
+  }
+
+  const handlePaymentError = (error: string) => {
+    alert(error)
+    setShowPayment(false)
+  }
+
+  const handleBackFromPayment = () => {
+    setShowPayment(false)
+  }
+
+  // Payment items for the portal
+  const paymentItems: PaymentItem[] = [
+    {
+      id: 'donation_' + Date.now(),
+      name: 'Donation',
+      description: formData.donationPurpose || 'General Donation',
+      amount: parseFloat(formData.amount),
+      type: 'donation',
+      metadata: {
+        donationType: 'General',
+        donationPurpose: formData.donationPurpose,
+      },
+    },
+  ]
+
+  // Show payment portal when form is submitted
+  if (showPayment) {
+    return (
+      <PaymentPortal
+        items={paymentItems}
+        userInfo={{
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+        }}
+        onBack={handleBackFromPayment}
+        onSuccess={handlePaymentSuccess}
+        onError={handlePaymentError}
+      />
+    )
+  }
+
+  // Show donation form
   return (
     <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl py-8">
@@ -177,9 +132,16 @@ export default function DonatePage() {
           </Link>
 
           <div className="text-center">
-            {/* Om Symbol */}
-            <div className="om-symbol text-5xl text-temple-maroon mb-4 drop-shadow-lg">
-              ॐ
+            {/* Sri Raghavendra Swamy Logo */}
+            <div className="mb-4">
+              <div className="w-32 h-32 mx-auto overflow-hidden rounded-full drop-shadow-lg">
+                <img
+                  src="/sri-raghavendra-logo.png"
+                  alt="Sri Raghavendra Swamy"
+                  className="w-full h-full object-cover object-center"
+                  style={{ objectPosition: 'center 35%' }}
+                />
+              </div>
             </div>
 
             <h1 className="font-cinzel text-3xl sm:text-4xl font-bold text-temple-maroon mb-2">
@@ -220,60 +182,20 @@ export default function DonatePage() {
                   onChange={handleInputChange}
                   error={errors.fullName}
                   required
-                  icon={<User className="w-5 h-5 text-gray-400" />}
+                  leftIcon={<User className="w-5 h-5 text-gray-400" />}
                 />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input
-                    label="Phone Number"
-                    name="phoneNumber"
-                    type="tel"
-                    placeholder="10-digit mobile number"
-                    value={formData.phoneNumber}
-                    onChange={handleInputChange}
-                    error={errors.phoneNumber}
-                    required
-                    icon={<Phone className="w-5 h-5 text-gray-400" />}
-                  />
-
-                  <Input
-                    label="Email (Optional)"
-                    name="email"
-                    type="email"
-                    placeholder="your.email@example.com"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    error={errors.email}
-                    icon={<Mail className="w-5 h-5 text-gray-400" />}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <Input
-                    label="City"
-                    name="city"
-                    placeholder="City"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    icon={<MapPin className="w-5 h-5 text-gray-400" />}
-                  />
-
-                  <Input
-                    label="State"
-                    name="state"
-                    placeholder="State"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                  />
-
-                  <Input
-                    label="Pincode"
-                    name="pincode"
-                    placeholder="Pincode"
-                    value={formData.pincode}
-                    onChange={handleInputChange}
-                  />
-                </div>
+                <Input
+                  label="Phone Number"
+                  name="phoneNumber"
+                  type="tel"
+                  placeholder="10-digit mobile number"
+                  value={formData.phoneNumber}
+                  onChange={handleInputChange}
+                  error={errors.phoneNumber}
+                  required
+                  leftIcon={<Phone className="w-5 h-5 text-gray-400" />}
+                />
               </div>
             </div>
 
@@ -333,7 +255,6 @@ export default function DonatePage() {
                   value={formData.donationPurpose}
                   onChange={handleInputChange}
                   rows={3}
-                  icon={<MessageSquare className="w-5 h-5 text-gray-400" />}
                 />
               </div>
             </div>
@@ -341,9 +262,8 @@ export default function DonatePage() {
             {/* Information Box */}
             <div className="bg-temple-cream/30 rounded-xl p-4 border border-temple-gold/20">
               <p className="text-sm text-gray-700 leading-relaxed">
-                🕉️ <span className="font-semibold">Your contribution matters:</span> After successful payment,
-                you'll receive an instant digital receipt and a beautiful certificate via WhatsApp. Join our devotee
-                community and receive temple updates and blessings.
+                🕉️ <span className="font-semibold">Thank you for your support:</span>
+                After payment, you'll receive an instant receipt via WhatsApp for your records.
               </p>
             </div>
 
@@ -351,20 +271,9 @@ export default function DonatePage() {
             <div className="pt-4">
               <Button
                 type="submit"
-                disabled={isLoading}
                 className="w-full py-4 text-lg font-semibold"
               >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    Processing...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Heart className="w-5 h-5" fill="currentColor" />
-                    Proceed to Payment
-                  </span>
-                )}
+                Proceed to Payment
               </Button>
 
               <p className="text-center text-xs text-gray-500 mt-4">
@@ -379,24 +288,18 @@ export default function DonatePage() {
           <h3 className="font-cinzel text-lg font-bold text-temple-maroon mb-4 text-center">
             What You'll Receive
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="text-center">
               <div className="w-12 h-12 bg-temple-gold/20 rounded-full flex items-center justify-center mx-auto mb-2">
                 <span className="text-2xl">📧</span>
               </div>
-              <p className="text-sm font-medium text-gray-700">Instant Receipt</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-temple-gold/20 rounded-full flex items-center justify-center mx-auto mb-2">
-                <span className="text-2xl">📜</span>
-              </div>
-              <p className="text-sm font-medium text-gray-700">Certificate via WhatsApp</p>
+              <p className="text-sm font-medium text-gray-700">Instant Digital Receipt</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-temple-gold/20 rounded-full flex items-center justify-center mx-auto mb-2">
                 <span className="text-2xl">🙏</span>
               </div>
-              <p className="text-sm font-medium text-gray-700">Temple Blessings</p>
+              <p className="text-sm font-medium text-gray-700">Divine Blessings</p>
             </div>
           </div>
         </div>

@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Razorpay from 'razorpay'
-import { prisma } from '@/lib/prisma'
-
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-})
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { amount, donorInfo } = body
+    const { amount, donorInfo, donationType, donationPurpose, isPoojaBooking: explicitIsPoojaBooking } = body
 
     // Validate input
     if (!amount || amount <= 0) {
@@ -21,39 +13,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create Razorpay order
-    const order = await razorpay.orders.create({
-      amount: Math.round(amount * 100), // Convert to paise
-      currency: 'INR',
-      receipt: `rcpt_${Date.now()}`,
-      notes: {
-        donor_name: donorInfo.fullName,
-        donor_phone: donorInfo.phoneNumber,
-      },
-    })
+    // Validate donor info
+    if (!donorInfo || !donorInfo.fullName || !donorInfo.phoneNumber) {
+      return NextResponse.json(
+        { error: 'Invalid donor information - fullName and phoneNumber are required' },
+        { status: 400 }
+      )
+    }
 
-    // Generate receipt number (will be finalized after successful payment)
-    const fiscalYear = getFiscalYear()
-    const tempReceiptNumber = `TEMP/${fiscalYear}/${Date.now()}`
+    console.log('Received donation request:', { amount, donationType, donorInfo: { fullName: donorInfo.fullName, phoneNumber: donorInfo.phoneNumber } })
 
-    // Create pending donation record
-    const donation = await prisma.donation.create({
-      data: {
-        receiptNumber: tempReceiptNumber,
-        amount: parseFloat(amount),
-        donationType: 'General',
-        donationPurpose: donorInfo.donationPurpose || null,
-        paymentStatus: 'PENDING',
-        paymentMethod: 'razorpay',
-        razorpayOrderId: order.id,
-      },
-    })
+    // Simple mock response - no database operations
+    const orderId = `mock_order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const mockId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+    // Check if this is a pooja booking - use explicit flag if provided, otherwise fallback to keyword detection
+    const isPoojaBooking = explicitIsPoojaBooking ||
+                           donationType?.toLowerCase().includes('pooja') ||
+                           donationPurpose?.toLowerCase().includes('pooja') ||
+                           donationType?.toLowerCase().includes('homam') ||
+                           donationType?.toLowerCase().includes('archana')
 
     return NextResponse.json({
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      donationId: donation.id,
+      orderId: orderId,
+      amount: Math.round(amount * 100),
+      currency: 'INR',
+      donationId: mockId,
+      isMock: true,
+      isPoojaBooking,
     })
   } catch (error) {
     console.error('Error creating order:', error)
