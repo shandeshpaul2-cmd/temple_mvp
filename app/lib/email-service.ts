@@ -1,6 +1,9 @@
-import { Resend } from 'resend';
+import sgMail from '@sendgrid/mail';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Set the API key
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 interface EmailOptions {
   to: string | string[];
@@ -15,43 +18,60 @@ interface EmailOptions {
 }
 
 export class EmailService {
-  private static fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@temple.org';
+  private static fromEmail = process.env.SENDGRID_FROM_EMAIL || 'noreply@temple.org';
 
   static async sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string }> {
     try {
-      if (!process.env.RESEND_API_KEY) {
-        console.warn('RESEND_API_KEY not configured, skipping email send');
-        return { success: false, error: 'Email service not configured' };
+      if (!process.env.SENDGRID_API_KEY || process.env.SENDGRID_API_KEY === 'YOUR_SENDGRID_API_KEY_HERE') {
+        console.warn('SENDGRID_API_KEY not configured, skipping email send');
+        return { success: false, error: 'Email service not configured - Please add your SendGrid API key' };
       }
 
-      const emailParams: any = {
+      const recipientEmails = Array.isArray(options.to) ? options.to : [options.to];
+
+      const msg: any = {
         from: options.from || this.fromEmail,
-        to: Array.isArray(options.to) ? options.to : [options.to],
+        to: recipientEmails,
         subject: options.subject,
         html: options.html,
       };
 
-      // Add attachments if provided
+      // Add attachments if provided - convert Buffer to base64 for SendGrid
       if (options.attachments && options.attachments.length > 0) {
-        emailParams.attachments = options.attachments;
+        msg.attachments = options.attachments
+          .filter(attachment => attachment && attachment.content) // Filter out null/undefined content
+          .map(attachment => ({
+            filename: attachment.filename,
+            content: attachment.content instanceof Buffer
+              ? attachment.content.toString('base64')
+              : attachment.content,
+            type: attachment.contentType || 'application/octet-stream',
+            disposition: 'attachment'
+          }));
       }
 
-      const { data, error } = await resend.emails.send(emailParams);
+      const response = await sgMail.send(msg);
 
-      if (error) {
-        console.error('Email send error:', error);
-        return { success: false, error: error.message };
-      }
-
-      console.log('Email sent successfully:', data);
+      console.log('✅ Email sent successfully via SendGrid:', response[0]?.headers?.['x-message-id']);
+      console.log('📧 Email sent to:', recipientEmails);
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Email service error:', error);
+
+      // Handle SendGrid specific errors
+      if (error.response) {
+        console.error('SendGrid API Error:', error.response.body);
+        return {
+          success: false,
+          error: `SendGrid error: ${error.response.body?.errors?.[0]?.message || error.message}`
+        };
+      }
+
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
-  
+
   static async sendDonationReceipt(donorEmail: string, donorName: string, amount: number, receiptNumber: string, poojaName: string, gotra: string, certificateUrl?: string): Promise<{ success: boolean; error?: string }> {
     const subject = `Donation Receipt - ${receiptNumber}`;
     const html = this.generateDonationReceiptTemplate(donorName, amount, receiptNumber, poojaName, gotra, certificateUrl);
@@ -67,12 +87,14 @@ export class EmailService {
     if (certificateUrl) {
       try {
         const certificateContent = await this.fetchPdfFromUrl(certificateUrl);
-        if (certificateContent) {
+        if (certificateContent && certificateContent.length > 0) {
           attachments.push({
             filename: `Donation_Certificate_${receiptNumber}.pdf`,
             content: certificateContent,
             contentType: 'application/pdf'
           });
+        } else {
+          console.warn('Certificate PDF is empty or null, skipping attachment');
         }
       } catch (error) {
         console.warn('Failed to fetch certificate for email attachment:', error);
@@ -88,10 +110,18 @@ export class EmailService {
     });
   }
 
-  
+
   private static async fetchPdfFromUrl(url: string): Promise<Buffer | null> {
     try {
-      const response = await fetch(url);
+      // Convert relative URL to absolute URL
+      let absoluteUrl = url;
+      if (url.startsWith('/')) {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3010';
+        absoluteUrl = `${baseUrl}${url}`;
+      }
+
+      console.log('Fetching PDF from URL:', absoluteUrl);
+      const response = await fetch(absoluteUrl);
       if (!response.ok) {
         console.warn('Failed to fetch PDF:', response.status, response.statusText);
         return null;
@@ -106,14 +136,9 @@ export class EmailService {
   }
 
   static async sendDonationNotificationToAdmin(donorName: string, amount: number, receiptNumber: string, poojaName: string, email: string, phone: string, gotra: string): Promise<{ success: boolean; error?: string }> {
-    const subject = `New Donation Received - ${receiptNumber}`;
-    const html = this.generateDonationNotificationTemplate(donorName, amount, receiptNumber, poojaName, email, phone, gotra);
-
-    return this.sendEmail({
-      to: process.env.TEMPLE_EMAIL || 'admin@temple.org',
-      subject,
-      html
-    });
+    // Admin emails disabled - prioritizing user emails only
+    console.log('Admin email notification disabled for donation:', receiptNumber);
+    return { success: true };
   }
 
   static async sendPoojaBookingConfirmation(devoteeEmail: string, devoteeName: string, poojaName: string, receiptNumber: string, scheduledDate: string, amount: number): Promise<{ success: boolean; error?: string }> {
@@ -128,17 +153,12 @@ export class EmailService {
   }
 
   static async sendPoojaBookingNotificationToAdmin(devoteeName: string, poojaName: string, receiptNumber: string, scheduledDate: string, email: string, phone: string): Promise<{ success: boolean; error?: string }> {
-    const subject = `New Pooja Booking - ${receiptNumber}`;
-    const html = this.generatePoojaAdminNotificationTemplate(devoteeName, poojaName, receiptNumber, scheduledDate, email, phone);
-
-    return this.sendEmail({
-      to: process.env.TEMPLE_EMAIL || 'admin@temple.org',
-      subject,
-      html
-    });
+    // Admin emails disabled - prioritizing user emails only
+    console.log('Admin email notification disabled for pooja booking:', receiptNumber);
+    return { success: true };
   }
 
-  
+
   static async sendAstrologyConsultationConfirmation(clientEmail: string, clientName: string, consultationType: string, receiptNumber: string, scheduledDate: string, amount: number): Promise<{ success: boolean; error?: string }> {
     const subject = `Astrology Consultation Confirmation - ${receiptNumber}`;
     const html = this.generateAstrologyConfirmationTemplate(clientName, consultationType, receiptNumber, scheduledDate, amount);
@@ -151,17 +171,12 @@ export class EmailService {
   }
 
   static async sendAstrologyConsultationNotificationToAdmin(clientName: string, consultationType: string, receiptNumber: string, scheduledDate: string, email: string, phone: string, birthDetails: any): Promise<{ success: boolean; error?: string }> {
-    const subject = `New Astrology Consultation Booking - ${receiptNumber}`;
-    const html = this.generateAstrologyAdminNotificationTemplate(clientName, consultationType, receiptNumber, scheduledDate, email, phone, birthDetails);
-
-    return this.sendEmail({
-      to: process.env.TEMPLE_EMAIL || 'admin@temple.org',
-      subject,
-      html
-    });
+    // Admin emails disabled - prioritizing user emails only
+    console.log('Admin email notification disabled for astrology consultation:', receiptNumber);
+    return { success: true };
   }
 
-  
+
   private static generateDonationReceiptTemplate(name: string, amount: number, receiptNumber: string, poojaName: string, gotra: string, certificateUrl?: string): string {
     const templeName = process.env.TEMPLE_NAME || "Shri Raghavendra Swamy Brundavana Sannidhi";
     const templeAddress = process.env.TEMPLE_ADDRESS || "9/2, Damodar Modaliar Road, Ulsoor, Bangalore - 560008";

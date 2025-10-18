@@ -945,85 +945,199 @@ export default NextAuth({
 
 ---
 
-## **FILE STRUCTURE**
+## **ARCHITECTURE UPDATE - Feature-Based Structure**
+
+### **🏗️ New Architecture Overview**
+
+The codebase has been reorganized using a **feature-based architecture** pattern to improve maintainability, scalability, and team collaboration.
+
+### **📦 Key Changes:**
+
+#### **1. Feature-Based Organization**
+```
+/features/
+├── donations/           # All donation functionality
+├── pooja-bookings/      # All booking functionality
+├── payments/           # Payment processing
+└── admin/              # Admin dashboard
+```
+
+#### **2. Shared Resources**
+```
+/shared/
+├── components/ui/       # Reusable UI components
+├── admin/             # Admin-specific shared resources
+├── contexts/          # React contexts
+└── lib/               # Shared utilities
+```
+
+#### **3. Route Re-exports**
+```
+/app/admin/donations   → features/donations/components/admin/
+/app/donate/           → features/donations/app/page/donate/
+/app/api/donations/    → features/donations/app/api/donations/
+```
+
+### **🎯 Benefits:**
+
+#### **✅ Improved Maintainability**
+- **Related code is co-located** - All donation logic in one place
+- **Clear ownership** - Each feature has its own domain
+- **Reduced cognitive load** - Easier to find and update code
+
+#### **✅ Better Scalability**
+- **Independent development** - Teams can work on different features
+- **Easy to add new features** - Clear pattern to follow
+- **Feature isolation** - Changes don't affect other domains
+
+#### **✅ Enhanced Reusability**
+- **Shared components** - UI library available across features
+- **Admin components** - Common admin patterns reused
+- **Consistent patterns** - Same structure across all features
+
+#### **✅ Clear Import Paths**
+```typescript
+// Before (scattered)
+import Button from '@/components/ui/Button'
+import PaymentPortal from '@/components/payment/PaymentPortal'
+
+// After (organized)
+import { Button } from '@/shared/components/ui'
+import PaymentPortal from '@/features/payments/components/payment/PaymentPortal'
+```
+
+### **📋 Feature Ownership:**
+
+- **Donations Feature** (`/features/donations/`)
+  - Donation forms, receipt generation, admin management
+- **Pooja Bookings Feature** (`/features/pooja-bookings/`)
+  - Service catalog, booking forms, scheduling
+- **Payments Feature** (`/features/payments/`)
+  - Razorpay integration, payment processing
+- **Admin Feature** (`/features/admin/`)
+  - Dashboard, authentication, cross-feature admin tools
+
+### **🔄 Migration Status:**
+✅ **Completed:**
+- All components moved to feature folders
+- Import paths updated
+- Route re-exports created
+- Admin functionality reorganized
+- Documentation updated
+
+This architecture makes the codebase much more professional, maintainable, and ready for scaling! 🚀
+
+---
+
+## **FILE STRUCTURE - UPDATED (Feature-Based Architecture)**
 
 ```
 temple-management-system/
 │
-├── frontend/                       # Next.js Frontend
-│   ├── app/                        # App router
-│   │   ├── layout.tsx              # Root layout
-│   │   ├── page.tsx                # Homepage
-│   │   ├── donate/
-│   │   │   ├── page.tsx            # Donation page
-│   │   │   └── success/page.tsx    # Success page
-│   │   ├── book-pooja/
-│   │   │   ├── page.tsx            # Pooja catalog
-│   │   │   ├── [id]/page.tsx      # Booking form
-│   │   │   └── success/page.tsx    # Success page
-│   │   ├── admin/
-│   │   │   ├── layout.tsx          # Admin layout
-│   │   │   ├── page.tsx            # Dashboard
-│   │   │   ├── donations/          # Donation management
-│   │   │   ├── bookings/           # Booking management
-│   │   │   ├── users/              # User management
-│   │   │   └── settings/           # Settings
-│   │   └── api/                    # API routes
-│   │       ├── auth/               # Authentication
-│   │       ├── donations/          # Donation APIs
-│   │       ├── bookings/           # Booking APIs
-│   │       └── payments/           # Payment APIs
+├── app/                            # Next.js App Router (Feature-Based)
+│   ├── features/                   # Business Features
+│   │   ├── donations/              # Donation Management Feature
+│   │   │   ├── components/         # Donation-specific components
+│   │   │   │   └── admin/          # Admin donation management
+│   │   │   ├── hooks/             # Custom donation hooks
+│   │   │   ├── utils/             # Donation utilities
+│   │   │   ├── api/               # Donation API handlers
+│   │   │   └── app/               # Donation pages
+│   │   │       ├── page/          # Donation routes
+│   │   │       └── api/           # Donation API routes
+│   │   │
+│   │   ├── pooja-bookings/         # Pooja Booking Feature
+│   │   │   ├── components/        # Booking-specific components
+│   │   │   │   └── admin/         # Admin booking management
+│   │   │   ├── hooks/            # Custom booking hooks
+│   │   │   ├── utils/            # Booking utilities
+│   │   │   ├── api/              # Booking API handlers
+│   │   │   └── app/              # Booking pages
+│   │   │       ├── page/         # Booking routes
+│   │   │       └── api/          # Booking API routes
+│   │   │
+│   │   ├── payments/              # Payment Processing Feature
+│   │   │   ├── components/        # Payment components
+│   │   │   ├── hooks/            # Payment hooks (useRazorpay)
+│   │   │   ├── utils/            # Payment utilities
+│   │   │   └── api/              # Payment API handlers
+│   │   │
+│   │   └── admin/                 # Admin Feature
+│   │       ├── app/              # Admin pages
+│   │       │   ├── dashboard/    # Main admin dashboard
+│   │       │   └── auth/         # Admin login
+│   │       ├── api/              # Admin-specific APIs
+│   │       └── components/       # Admin-specific components
 │   │
-│   ├── components/                 # Reusable components
-│   │   ├── ui/                     # UI components (buttons, inputs, etc.)
-│   │   ├── donation/               # Donation-specific components
-│   │   ├── booking/                # Booking-specific components
-│   │   ├── admin/                  # Admin-specific components
-│   │   └── shared/                 # Shared components
+│   ├── shared/                    # Shared Resources
+│   │   ├── components/           # Reusable components
+│   │   │   ├── ui/              # UI component library
+│   │   │   ├── common/          # Common components
+│   │   │   └── providers/       # Context providers
+│   │   ├── admin/               # Admin-specific shared resources
+│   │   │   ├── components/      # Admin UI components
+│   │   │   ├── contexts/        # Admin authentication
+│   │   │   └── utils/           # Admin utilities
+│   │   ├── contexts/            # React contexts
+│   │   ├── lib/                 # Shared utilities
+│   │   ├── hooks/               # Global hooks
+│   │   └── types/               # TypeScript definitions
 │   │
-│   ├── lib/                        # Utilities and libraries
-│   │   ├── db.ts                   # Database client
-│   │   ├── auth.ts                 # Auth utilities
-│   │   ├── razorpay.ts             # Razorpay integration
-│   │   ├── whatsapp.ts             # WhatsApp integration
-│   │   ├── pdf-generator.ts        # PDF generation
-│   │   └── utils.ts                # General utilities
-│   │
-│   ├── styles/                     # Global styles
-│   │   └── globals.css             # Tailwind + custom CSS
-│   │
-│   ├── public/                     # Static assets
-│   │   ├── images/                 # Images
-│   │   ├── certificates/           # Certificate assets
-│   │   └── icons/                  # Icons
-│   │
-│   ├── prisma/                     # Database schema
-│   │   ├── schema.prisma           # Prisma schema
-│   │   └── migrations/             # Database migrations
-│   │
-│   ├── .env.local                  # Environment variables
-│   ├── next.config.js              # Next.js config
-│   ├── tailwind.config.js          # Tailwind config
-│   ├── tsconfig.json               # TypeScript config
-│   └── package.json                # Dependencies
+│   └── app/                      # Next.js Routes (Re-exports)
+│       ├── page.tsx              # Homepage
+│       ├── layout.tsx            # Root layout
+│       ├── donate/              # Donation routes (re-exports)
+│       │   ├── page.tsx         # → features/donations/app/page/donate/page
+│       │   └── success/page.tsx # → features/donations/app/page/donate/success
+│       ├── book-pooja/          # Booking routes (re-exports)
+│       │   └── page.tsx         # → features/pooja-bookings/app/page/book-pooja/page
+│       ├── admin/               # Admin routes (re-exports)
+│       │   ├── layout.tsx       # → features/admin/app/layout
+│       │   ├── dashboard/       # → features/admin/app/dashboard
+│       │   ├── donations/       # → features/donations/components/admin/
+│       │   ├── bookings/        # → features/pooja-bookings/components/admin/
+│       │   └── login/           # → features/admin/app/auth
+│       └── api/                 # API routes (re-exports)
+│           ├── donations/       # → features/donations/app/api/donations
+│           ├── bookings/        # → features/pooja-bookings/app/api/bookings
+│           └── admin/           # → features/*/api/
 │
-├── certificate-system/             # Certificate generation (standalone)
-│   ├── certificate-template.html   # HTML template
-│   ├── generate-certificate.js     # PDF generator
-│   └── certificates/               # Generated PDFs
+│   ├── styles/                   # Global styles
+│   │   └── globals.css          # Tailwind + custom CSS
+│   │
+│   ├── public/                   # Static assets
+│   │   ├── images/               # Images
+│   │   ├── certificates/         # Certificate assets
+│   │   └── icons/                # Icons
+│   │
+│   ├── prisma/                   # Database schema
+│   │   ├── schema.prisma         # Prisma schema
+│   │   └── migrations/           # Database migrations
+│   │
+│   ├── .env.local                # Environment variables
+│   ├── next.config.js            # Next.js config
+│   ├── tailwind.config.js        # Tailwind config
+│   ├── tsconfig.json             # TypeScript config
+│   └── package.json              # Dependencies
 │
-├── docs/                           # Documentation
-│   ├── API.md                      # API documentation
-│   ├── USER-GUIDE.md               # User guide
-│   ├── ADMIN-GUIDE.md              # Admin guide
-│   └── DEPLOYMENT.md               # Deployment guide
+├── certificate-system/          # Certificate generation (standalone)
+│   ├── certificate-template.html # HTML template
+│   ├── generate-certificate.js   # PDF generator
+│   └── certificates/             # Generated PDFs
 │
-├── scripts/                        # Utility scripts
-│   ├── seed-database.js            # Seed initial data
-│   └── backup.js                   # Backup script
+├── docs/                        # Documentation
+│   ├── API.md                   # API documentation
+│   ├── USER-GUIDE.md            # User guide
+│   ├── ADMIN-GUIDE.md           # Admin guide
+│   ├── DEPLOYMENT.md            # Deployment guide
+│   └── FEATURE_STRUCTURE.md     # Feature architecture guide
 │
-├── MASTER-PLAN.md                  # This file
-└── README.md                       # Project README
+├── scripts/                     # Utility scripts
+│   ├── seed-database.js         # Seed initial data
+│   └── backup.js                # Backup script
+│
+├── MASTER-PLAN.md               # This file (updated)
+└── README.md                    # Project README
 ```
 
 ---

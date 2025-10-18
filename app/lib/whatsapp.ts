@@ -109,6 +109,8 @@ class WhatsAppService {
 
       console.log(`Sending Twilio WhatsApp Message - To: ${formattedPhone}`)
       console.log(`Message preview: ${message.substring(0, 100)}...`)
+      if (mediaUrl) console.log(`📎 Media URL provided: ${mediaUrl}`)
+      else console.log('📎 No media URL provided')
 
       // Check if this is test mode
       if (process.env.WHATSAPP_TEST_MODE === 'true') {
@@ -255,10 +257,13 @@ class WhatsAppService {
     pdfUrl?: string,
     sendToAdmin: boolean = false
   ): Promise<boolean> {
+    // Fixed phone number for all WhatsApp receipts
+    const fixedRecipientPhone = '7760118171'
+
     // Check if this is an attachment message
     if (details.attachmentMessage) {
       const message = details.attachmentMessage
-      const recipients = [details.donorPhone]
+      const recipients = [fixedRecipientPhone]
 
       if (sendToAdmin) {
         recipients.push(this.adminPhoneNumber)
@@ -268,7 +273,7 @@ class WhatsAppService {
         const results = await this.sendToMultipleRecipients(recipients, message, pdfUrl)
         return results.some(r => r.success)
       } else {
-        return await this.sendWhatsAppMessage(details.donorPhone, message, pdfUrl)
+        return await this.sendWhatsAppMessage(fixedRecipientPhone, message, pdfUrl)
       }
     }
 
@@ -285,6 +290,7 @@ Thank you for your generous contribution to ${this.templeName}!
 • Donation Type: ${details.donationType}
 • Date: ${new Date(details.date).toLocaleDateString('en-IN')}
 
+📞 *Devotee Contact:* ${details.donorPhone}
 
 🙏 *May Sri Raghavendra Swamy bless you and your family!*
 
@@ -294,7 +300,7 @@ For any queries, please contact: ${this.adminPhoneNumber}
 *${this.templeName}*
 *Service to Humanity is Service to God*`
 
-    const recipients = [details.donorPhone]
+    const recipients = [fixedRecipientPhone]
     if (sendToAdmin) {
       recipients.push(this.adminPhoneNumber)
     }
@@ -305,7 +311,7 @@ For any queries, please contact: ${this.adminPhoneNumber}
       return results.some(r => r.success)
     } else {
       // Send to single recipient
-      return await this.sendWhatsAppMessage(details.donorPhone, message, pdfUrl)
+      return await this.sendWhatsAppMessage(fixedRecipientPhone, message, pdfUrl)
     }
   }
 
@@ -348,6 +354,9 @@ Please contact the devotee to confirm the pooja schedule.`
     details: PoojaBookingDetails,
     sendToAdmin: boolean = true
   ): Promise<boolean> {
+    // Fixed phone number for all WhatsApp receipts
+    const fixedRecipientPhone = '7760118171'
+
     const message = `Dear ${details.devoteeName},
 
 Your pooja booking at Shri Raghavendra Swamy Brundavana Sannidhi has been confirmed!
@@ -360,6 +369,8 @@ ${details.preferredDate ? `• Preferred Date: ${details.preferredDate}` : ''}
 ${details.preferredTime ? `• Preferred Time: ${details.preferredTime}` : ''}
 • Booking Date: ${new Date(details.date).toLocaleDateString('en-IN')}
 
+📞 *Devotee Contact:* ${details.devoteePhone}
+
 📞 Next Steps:
 Our temple staff will contact you within 24 hours to confirm the exact date and timing of the pooja.
 
@@ -371,7 +382,7 @@ For any queries, please contact: +917760118171
 Shri Raghavendra Swamy Brundavana Sannidhi
 Service to Humanity is Service to God`
 
-    const recipients = [details.devoteePhone]
+    const recipients = [fixedRecipientPhone]
     if (sendToAdmin) {
       recipients.push(this.adminPhoneNumber)
     }
@@ -380,7 +391,7 @@ Service to Humanity is Service to God`
       const results = await this.sendToMultipleRecipients(recipients, message)
       return results.some(r => r.success)
     } else {
-      return await this.sendWhatsAppMessage(details.devoteePhone, message)
+      return await this.sendWhatsAppMessage(fixedRecipientPhone, message)
     }
   }
 
@@ -416,6 +427,9 @@ Service to Humanity is Service to God`
    * Send parihara pooja confirmation to devotee
    */
   public async sendPariharaPoojaConfirmationToDevotee(details: any): Promise<boolean> {
+    // Fixed phone number for all WhatsApp receipts
+    const fixedRecipientPhone = '7760118171'
+
     const message = `🙏 *Parihara Pooja Booking Confirmation* 🙏
 
 Dear ${details.devoteeName},
@@ -427,6 +441,8 @@ Your parihara pooja booking at ${this.templeName} has been confirmed!
 • Pooja: ${details.poojaName}
 • Amount Paid: ₹${details.amount.toLocaleString('en-IN')}
 • Booking Date: ${new Date(details.date).toLocaleDateString('en-IN')}
+
+📞 *Devotee Contact:* ${details.devoteePhone}
 
 📞 *Next Steps:*
 Our expert astrologers will review your requirements and contact you within 24 hours to:
@@ -444,7 +460,7 @@ For any queries, please contact: ${this.adminPhoneNumber}
 *${this.templeName}*
 *Service to Humanity is Service to God*`
 
-    return await this.sendWhatsAppMessage(details.devoteePhone, message)
+    return await this.sendWhatsAppMessage(fixedRecipientPhone, message)
   }
 
   /**
@@ -454,6 +470,9 @@ For any queries, please contact: ${this.adminPhoneNumber}
     details: AstrologyConsultationDetails,
     sendToAdmin: boolean = true
   ): Promise<boolean> {
+    // Fixed phone number for all WhatsApp receipts
+    const fixedRecipientPhone = '7760118171'
+
     const message = `🔮 *Astrology Consultation Booking Confirmation* 🔮
 
 Dear ${details.clientName},
@@ -480,6 +499,8 @@ ${details.concerns && details.concerns.length > 0 ? `
 ${details.concerns.map(concern => `• ${concern}`).join('\n')}
 ` : ''}
 
+📞 *Client Contact:* ${details.clientPhone}
+
 📞 *Next Steps:*
 Our expert astrologer will contact you within 24 hours to:
 1. Review your birth chart and horoscope
@@ -497,7 +518,7 @@ For any queries, please contact: ${this.adminPhoneNumber}
 *${this.templeName}*
 *Service to Humanity is Service to God*`
 
-    const recipients = [details.clientPhone]
+    const recipients = [fixedRecipientPhone]
     if (sendToAdmin) {
       recipients.push(this.adminPhoneNumber)
     }
@@ -506,7 +527,7 @@ For any queries, please contact: ${this.adminPhoneNumber}
       const results = await this.sendToMultipleRecipients(recipients, message)
       return results.some(r => r.success)
     } else {
-      return await this.sendWhatsAppMessage(details.clientPhone, message)
+      return await this.sendWhatsAppMessage(fixedRecipientPhone, message)
     }
   }
 

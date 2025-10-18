@@ -55,18 +55,44 @@ export async function POST(request: NextRequest) {
     }
 
     // Create or find the user
-    const user = await prisma.user.upsert({
-      where: { phone: userInfo.phoneNumber },
-      update: {
-        name: userInfo.fullName,
-        ...(userInfo.emailAddress && { email: userInfo.emailAddress })
-      },
-      create: {
-        name: userInfo.fullName,
-        phone: userInfo.phoneNumber,
-        email: userInfo.emailAddress || null
+    let user;
+    try {
+      user = await prisma.user.upsert({
+        where: { phone: userInfo.phoneNumber },
+        update: {
+          name: userInfo.fullName,
+          // Only update email if it's provided and doesn't conflict
+          ...(userInfo.emailAddress && { email: userInfo.emailAddress })
+        },
+        create: {
+          name: userInfo.fullName,
+          phone: userInfo.phoneNumber,
+          email: userInfo.emailAddress || null
+        }
+      })
+    } catch (error: any) {
+      // Handle unique constraint violation on email
+      if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+        console.log('Email already exists, using phone number only for user lookup')
+        // Try to find user by phone number only
+        user = await prisma.user.findUnique({
+          where: { phone: userInfo.phoneNumber }
+        })
+
+        // If still not found, create without email
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              name: userInfo.fullName,
+              phone: userInfo.phoneNumber,
+              email: null // Don't set email to avoid conflict
+            }
+          })
+        }
+      } else {
+        throw error; // Re-throw other errors
       }
-    })
+    }
 
     let responseData = {}
 
