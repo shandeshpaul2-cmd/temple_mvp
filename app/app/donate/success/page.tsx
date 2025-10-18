@@ -1,251 +1,218 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { CheckCircle, Download, Share2, Home, Heart } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { useLanguage } from '@/contexts/LanguageContext'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { certificateService, CertificateData } from '@/lib/certificate-service'
 
-function SuccessContent() {
-  const { t } = useLanguage()
-  const searchParams = useSearchParams()
+interface DonationDetails {
+  donorName: string
+  donorPhone: string
+  amount: number
+  donationType: string
+  donationPurpose: string
+  receiptNumber: string
+  paymentId: string
+  date: string
+}
+
+export default function DonationSuccessPage() {
   const router = useRouter()
-  const receiptNumber = searchParams.get('receipt')
-  const donationId = searchParams.get('id')
-
-  const [isLoading, setIsLoading] = useState(false)
-  const [donationDetails, setDonationDetails] = useState<any>(null)
-
-  // Fetch donation details from admin API
+  const [donationDetails, setDonationDetails] = useState<DonationDetails | null>(null)
+  const [certificateLoading, setCertificateLoading] = useState(false)
+  const [certificateError, setCertificateError] = useState<string | null>(null)
+  const [certificateGenerated, setCertificateGenerated] = useState(false)
+  
   useEffect(() => {
-    if (receiptNumber) {
-      fetchDonationDetails()
-    }
-  }, [receiptNumber])
-
-  const fetchDonationDetails = async () => {
-    try {
-      if (!receiptNumber) return
-      const response = await fetch(`/api/donations/${encodeURIComponent(receiptNumber)}`)
-      if (response.ok) {
-        const donation = await response.json()
-        if (donation) {
-          setDonationDetails(donation)
-        }
+    // Retrieve donation details from sessionStorage
+    const storedDetails = sessionStorage.getItem('donationDetails')
+    if (storedDetails) {
+      try {
+        const details = JSON.parse(storedDetails)
+        setDonationDetails(details)
+      } catch (error) {
+        console.error('Error parsing donation details:', error)
+        router.push('/donate')
       }
+    } else {
+      // No donation details found, redirect to donate page
+      router.push('/donate')
+    }
+  }, [router])
+
+  
+  const handleDonateAgain = () => {
+    sessionStorage.removeItem('donationDetails')
+    router.push('/donate')
+  }
+
+  const handleGenerateCertificate = async () => {
+    if (!donationDetails) return
+
+    setCertificateLoading(true)
+    setCertificateError(null)
+
+    try {
+      const certificateData: CertificateData = {
+        donor_name: donationDetails.donorName,
+        amount: donationDetails.amount,
+        donation_id: donationDetails.receiptNumber,
+        donation_date: new Date(donationDetails.date).toISOString().split('T')[0],
+        payment_mode: 'Razorpay',
+        org_name: 'Shri Raghavendra Swamy Brundavana Sannidhi, Halasuru',
+        org_subtitle: 'Guru Seva Mandali (Regd.)',
+        show_80g_note: true,
+      }
+
+      const result = await certificateService.generateAndDownload(certificateData)
+
+      if (result.success) {
+        setCertificateGenerated(true)
+      } else {
+        setCertificateError(result.error || 'Failed to generate certificate')
+      }
+
     } catch (error) {
-      console.error('Error fetching donation details:', error)
+      console.error('Certificate generation error:', error)
+      setCertificateError('Failed to generate certificate. Please try again.')
+    } finally {
+      setCertificateLoading(false)
     }
   }
 
-  if (!receiptNumber || !donationId) {
+  if (!donationDetails) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-600 mb-4">Invalid donation details</p>
-        <Link href="/">
-          <Button>Return to Home</Button>
-        </Link>
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 to-amber-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading donation details...</p>
+        </div>
       </div>
     )
   }
 
-  const handleDownloadReceipt = async () => {
-    setIsLoading(true)
-    try {
-      // TODO: Implement PDF download
-      alert('Receipt download will be implemented soon!')
-    } catch (error) {
-      console.error('Error downloading receipt:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleShareWhatsApp = () => {
-    const message = `Thank you for your donation to Guru Seva Mandali! Receipt Number: ${receiptNumber}`
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`
-    window.open(url, '_blank')
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50 flex items-center justify-center py-12 px-4">
-      <div className="max-w-2xl w-full">
-        {/* Success Card */}
-        <div className="bg-white rounded-3xl shadow-2xl border-2 border-temple-gold/20 overflow-hidden">
-          {/* Top Accent Bar */}
-          <div className="h-2 bg-gradient-to-r from-temple-maroon via-temple-gold to-temple-maroon"></div>
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-amber-50 py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          {/* Success Header */}
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold text-green-800 mb-2">
+              🙏 Donation Successful!
+            </h1>
+            <p className="text-gray-600">
+              Thank you for your generous contribution to Shri Raghavendra Swamy Brundavana Sannidhi
+            </p>
+          </div>
 
-          <div className="p-8 sm:p-12">
-            {/* Success Icon */}
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-12 h-12 text-green-600" />
+          {/* Donation Details */}
+          <div className="bg-orange-50 rounded-lg p-6 mb-6">
+            <h2 className="text-lg font-semibold text-orange-800 mb-4">Donation Details</h2>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Receipt Number:</span>
+                <span className="font-medium">{donationDetails.receiptNumber}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Donor Name:</span>
+                <span className="font-medium">{donationDetails.donorName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Phone Number:</span>
+                <span className="font-medium">{donationDetails.donorPhone}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Donation Type:</span>
+                <span className="font-medium">{donationDetails.donationType}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Purpose:</span>
+                <span className="font-medium">{donationDetails.donationPurpose}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Date:</span>
+                <span className="font-medium">{new Date(donationDetails.date).toLocaleDateString('en-IN')}</span>
+              </div>
+              <div className="border-t pt-2 mt-2">
+                <div className="flex justify-between">
+                  <span className="text-lg font-semibold text-gray-800">Amount Paid:</span>
+                  <span className="text-lg font-bold text-green-600">
+                    ₹{donationDetails.amount.toLocaleString('en-IN')}
+                  </span>
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Success Message */}
-            <div className="text-center mb-8">
-              <h1 className="font-cinzel text-3xl sm:text-4xl font-bold text-temple-maroon mb-3">
-                🙏 Donation Successful!
-              </h1>
-              <p className="text-gray-600 text-lg mb-2">
-                Your generous contribution has been received
-              </p>
-              <p className="text-sm text-gray-500">
-                May {t.templeDeity} bless you with prosperity and happiness
-              </p>
-            </div>
+          {/* Certificate Section */}
+          <div className="bg-blue-50 rounded-lg p-6 mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-4">📜 Download Your Certificate</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Generate an official donation certificate for your records. This certificate includes your donation details and is valid for tax purposes under Section 80G.
+            </p>
 
-            {/* Decorative Divider */}
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent to-temple-gold"></div>
-              <div className="text-2xl text-temple-gold">ॐ</div>
-              <div className="h-px w-16 bg-gradient-to-l from-transparent to-temple-gold"></div>
-            </div>
-
-            {/* Receipt Number */}
-            <div className="bg-temple-cream/30 rounded-xl p-6 border border-temple-gold/20 mb-8">
-              <p className="text-sm text-gray-600 mb-2 text-center">Receipt Number</p>
-              <p className="text-2xl font-bold text-temple-maroon text-center font-mono tracking-wider">
-                {receiptNumber}
-              </p>
-            </div>
-
-            {/* Donation Details */}
-            {donationDetails && (
-              <div className="bg-gray-50 rounded-xl p-6 mb-8">
-                <h3 className="font-cinzel text-xl font-bold text-temple-maroon mb-4">Donation Details</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Donation Type:</span>
-                    <span className="font-medium text-temple-maroon">{donationDetails.donationType}</span>
-                  </div>
-                  {donationDetails.donationPurpose && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Purpose:</span>
-                      <span className="font-medium">{donationDetails.donationPurpose}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Donor Name:</span>
-                    <span className="font-medium">{donationDetails.userName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Phone:</span>
-                    <span className="font-medium">{donationDetails.userPhone}</span>
-                  </div>
-                  <div className="border-t pt-3 mt-3">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-gray-700">Amount Donated:</span>
-                      <div className="flex items-center gap-1 text-temple-maroon font-bold text-lg">
-                        <span>₹</span>
-                        <span>{donationDetails.amount?.toLocaleString('en-IN') || '0'}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Status:</span>
-                    <span className="font-medium text-green-600">✓ Successful</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Date:</span>
-                    <span className="font-medium">
-                      {donationDetails.createdAt ? new Date(donationDetails.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN')}
-                    </span>
-                  </div>
-                </div>
+            {certificateError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                <p className="text-sm">{certificateError}</p>
               </div>
             )}
 
-            {/* What's Next Section */}
-            <div className="bg-gradient-to-r from-orange-50 to-temple-cream/50 rounded-xl p-6 mb-8">
-              <h3 className="font-cinzel text-lg font-bold text-temple-maroon mb-4">
-                What happens next?
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-temple-gold/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-temple-maroon font-bold text-sm">1</span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    You'll receive an <span className="font-semibold">instant digital receipt</span> at your registered email
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-temple-gold/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-temple-maroon font-bold text-sm">2</span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    A <span className="font-semibold">beautiful certificate</span> will be sent to your WhatsApp number
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-temple-gold/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-temple-maroon font-bold text-sm">3</span>
-                  </div>
-                  <p className="text-gray-700 text-sm">
-                    You'll be added to our <span className="font-semibold">WhatsApp devotee community</span> for temple updates
-                  </p>
-                </div>
+            {certificateGenerated && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+                <p className="text-sm">✅ Certificate generated successfully! Check your downloads folder.</p>
               </div>
-            </div>
+            )}
 
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              <button
-                onClick={handleDownloadReceipt}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-temple-maroon to-red-700 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Download className="w-5 h-5" />
-                Download Receipt (PDF)
-              </button>
-
-              <button
-                onClick={handleShareWhatsApp}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
-              >
-                <Share2 className="w-5 h-5" />
-                Share on WhatsApp
-              </button>
-
-              <Link href="/" className="block">
-                <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-temple-gold/20 text-temple-maroon rounded-xl font-semibold hover:bg-temple-gold/30 transition-all duration-300 border-2 border-temple-gold/30">
-                  <Home className="w-5 h-5" />
-                  Return to Home
-                </button>
-              </Link>
-            </div>
+            <button
+              onClick={handleGenerateCertificate}
+              disabled={certificateLoading}
+              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              {certificateLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Generating Certificate...
+                </>
+              ) : (
+                <>
+                  📄 Download Certificate
+                </>
+              )}
+            </button>
           </div>
-        </div>
 
-        {/* Additional Donation CTA */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 mb-3">Want to make another contribution?</p>
-          <Link href="/donate">
-            <Button variant="outline" className="inline-flex items-center gap-2">
-              <Heart className="w-4 h-4" fill="currentColor" />
-              Make Another Donation
-            </Button>
-          </Link>
+          {/* Action Buttons */}
+          <div className="flex space-x-4">
+            <button
+              onClick={handleDonateAgain}
+              className="flex-1 bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
+            >
+              🙏 Donate Again
+            </button>
+            <button
+              onClick={() => window.location.href = '/'}
+              className="flex-1 bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+            >
+              🏠 Go Home
+            </button>
+          </div>
+
+          {/* WhatsApp Info */}
+          <div className="mt-6 p-4 bg-green-50 rounded-lg">
+            <h3 className="font-semibold text-green-800 mb-2">📱 WhatsApp Notification</h3>
+            <p className="text-sm text-gray-600">
+              You will receive a confirmation message with your receipt details on WhatsApp shortly.
+            </p>
+          </div>
         </div>
       </div>
     </div>
-  )
-}
-
-export default function DonateSuccessPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-temple-maroon border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    }>
-      <SuccessContent />
-    </Suspense>
   )
 }

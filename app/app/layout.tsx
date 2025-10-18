@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { Providers } from '@/components/providers/Providers'
+import { Providers } from '@/shared/components/providers/Providers'
 
 export const metadata: Metadata = {
   title: 'Sri Raghavendra Brindavana Sannidhi',

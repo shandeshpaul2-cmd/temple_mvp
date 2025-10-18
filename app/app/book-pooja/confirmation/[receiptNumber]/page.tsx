@@ -1,64 +1,80 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { CheckCircle, Download, Share2, Home, Calendar, Clock, User, Phone, IndianRupee, Star } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { useLanguage } from '@/contexts/LanguageContext'
+import { ArrowLeft, Share2, Calendar, User, Phone, CheckCircle, Home } from 'lucide-react'
 
-function ConfirmationContent() {
-  const { t } = useLanguage()
+export default function PoojaConfirmationPage() {
   const params = useParams()
-  const router = useRouter()
   const receiptNumber = params.receiptNumber as string
-
-  const [isLoading, setIsLoading] = useState(false)
   const [bookingDetails, setBookingDetails] = useState<any>(null)
-  const [error, setError] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (receiptNumber) {
-      fetchBookingDetails()
+    const fetchBookingDetails = async () => {
+      try {
+        console.log('🔍 Fetching booking details for receipt:', receiptNumber)
+
+        const response = await fetch(`/api/bookings/${receiptNumber}`)
+
+        if (!response.ok) {
+          console.error('❌ Failed to fetch booking details:', response.status)
+          setBookingDetails(null)
+          setIsLoading(false)
+          return
+        }
+
+        const data = await response.json()
+        console.log('📋 Received booking data:', data)
+
+        if (data) {
+          const bookingDetails = {
+            receiptNumber: data.receiptNumber,
+            poojaName: data.poojaName,
+            devoteeName: data.userName,
+            devoteePhone: data.userPhone,
+            amount: data.poojaPrice,
+            bookingDate: data.createdAt,
+            preferredDate: data.preferredDate,
+            preferredTime: data.preferredTime,
+            nakshatra: data.nakshatra || 'Not specified',
+            gotra: data.gothra || 'Not specified',
+            status: data.bookingStatus || 'confirmed',
+            paymentId: data.paymentId || 'direct-' + Date.now(),
+            paymentDate: data.createdAt
+          }
+
+          console.log('✅ Processed booking details:', bookingDetails)
+          setBookingDetails(bookingDetails)
+        } else {
+          console.log('❌ No booking data received')
+          setBookingDetails(null)
+        }
+      } catch (error) {
+        console.error('❌ Error fetching booking details:', error)
+        setBookingDetails(null)
+      } finally {
+        setIsLoading(false)
+      }
     }
+
+    fetchBookingDetails()
   }, [receiptNumber])
 
-  const fetchBookingDetails = async () => {
-    try {
-      // Fetch booking details from database
-      const response = await fetch(`/api/bookings/${receiptNumber}`)
-      if (!response.ok) {
-        throw new Error('Booking not found')
-      }
-      const data = await response.json()
-      setBookingDetails(data)
-    } catch (error) {
-      console.error('Error fetching booking details:', error)
-      setError('Failed to load booking details')
-    }
+  
+  const handleShareWhatsApp = () => {
+    const message = `🙏 Pooja Booking Confirmation\n\nTemple: Shri Raghavendra Swamy Brundavana Sannidhi\nPooja: ${bookingDetails?.poojaName}\nDate: ${bookingDetails?.preferredDate}\nTime: ${bookingDetails?.preferredTime}\nReceipt: ${bookingDetails?.receiptNumber}\nAmount: ₹${bookingDetails?.amount}\n\nThank you for your booking!`
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, '_blank')
   }
 
-  if (!receiptNumber) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50 flex items-center justify-center py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Invalid booking confirmation</p>
-          <Link href="/book-pooja">
-            <Button>Back to Pooja Booking</Button>
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50 flex items-center justify-center py-12 px-4">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <Link href="/book-pooja">
-            <Button>Back to Pooja Booking</Button>
-          </Link>
+          <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading booking details...</p>
         </div>
       </div>
     )
@@ -66,201 +82,178 @@ function ConfirmationContent() {
 
   if (!bookingDetails) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50 flex items-center justify-center py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-temple-maroon border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading booking details...</p>
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">❌</span>
+          </div>
+          <h1 className="text-2xl font-bold text-red-700 mb-2">Booking Not Found</h1>
+          <p className="text-gray-600 mb-6">Could not find booking details for receipt: {receiptNumber}</p>
+          <Link href="/book-pooja" className="text-blue-600 hover:text-blue-800 underline">
+            Back to Pooja Booking
+          </Link>
         </div>
       </div>
     )
   }
 
-  const handleDownloadReceipt = async () => {
-    setIsLoading(true)
-    try {
-      // TODO: Implement PDF download
-      alert('Receipt download will be implemented soon!')
-    } catch (error) {
-      console.error('Error downloading receipt:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleShareWhatsApp = () => {
-    const message = `🙏 Pooja Booking Confirmed!\n\n${bookingDetails.poojaName}\nDate: ${new Date(bookingDetails.preferredDate).toLocaleDateString('en-IN')}\nTime: ${bookingDetails.preferredTime}\nReceipt: ${receiptNumber}\n\nThank you for booking at ${t.templeName}!`
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`
-    window.open(url, '_blank')
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Success Card */}
-        <div className="bg-white rounded-3xl shadow-2xl border-2 border-temple-gold/20 overflow-hidden">
-          {/* Top Accent Bar */}
-          <div className="h-2 bg-gradient-to-r from-temple-maroon via-temple-gold to-temple-maroon"></div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl py-8">
+        {/* Header */}
+        <div className="mb-6">
+          <Link
+            href="/book-pooja"
+            className="flex items-center gap-2 text-green-700 hover:text-green-600 transition-colors mb-4"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Back to Pooja Booking</span>
+          </Link>
 
-          <div className="p-8 sm:p-12">
-            {/* Success Icon */}
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-12 h-12 text-green-600" />
-              </div>
+          <div className="text-center">
+            <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
+            <h1 className="text-3xl font-bold text-green-700 mb-2">Pooja Booking Confirmed!</h1>
+            <p className="text-gray-600">Thank you for your devotion. Your booking has been confirmed.</p>
+          </div>
+        </div>
 
-            {/* Success Message */}
-            <div className="text-center mb-8">
-              <h1 className="font-cinzel text-3xl sm:text-4xl font-bold text-temple-maroon mb-3">
-                🙏 Pooja Booking Confirmed!
-              </h1>
-              <p className="text-gray-600 text-lg mb-2">
-                Your pooja booking has been successfully confirmed
-              </p>
-              <p className="text-sm text-gray-500">
-                May {t.templeDeity} bless you with prosperity and happiness
-              </p>
+        {/* Confirmation Card */}
+        <div className="bg-white rounded-2xl shadow-xl border-2 border-green-200 overflow-hidden">
+          {/* Receipt Header */}
+          <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-2">🙏 Pooja Booking Receipt</h2>
+              <p className="text-green-100">Shri Raghavendra Swamy Brundavana Sannidhi</p>
             </div>
+          </div>
 
-            {/* Decorative Divider */}
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent to-temple-gold"></div>
-              <div className="text-2xl text-temple-gold">ॐ</div>
-              <div className="h-px w-16 bg-gradient-to-l from-transparent to-temple-gold"></div>
-            </div>
-
-            {/* Receipt Number */}
-            <div className="bg-temple-cream/30 rounded-xl p-6 border border-temple-gold/20 mb-8">
-              <p className="text-sm text-gray-600 mb-2 text-center">Receipt Number</p>
-              <p className="text-2xl font-bold text-temple-maroon text-center font-mono tracking-wider">
-                {receiptNumber}
-              </p>
-            </div>
-
-            {/* Booking Details */}
-            <div className="bg-gray-50 rounded-xl p-6 mb-8">
-              <h3 className="font-cinzel text-xl font-bold text-temple-maroon mb-4">Booking Details</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Pooja Information */}
+          {/* Booking Details */}
+          <div className="p-6 sm:p-8">
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              {/* Left Column */}
+              <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <h3 className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    Pooja Information
-                  </h4>
-                  <div className="space-y-2">
+                    Booking Information
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Pooja:</span>
-                      <span className="font-medium text-temple-maroon">{bookingDetails.poojaName}</span>
+                      <span className="text-gray-600">Receipt Number:</span>
+                      <span className="font-mono font-semibold">{bookingDetails.receiptNumber}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Date:</span>
-                      <span className="font-medium">
-                        {bookingDetails.preferredDate ? new Date(bookingDetails.preferredDate).toLocaleDateString('en-IN') : 'To be scheduled'}
+                      <span className="text-gray-600">Pooja Name:</span>
+                      <span className="font-medium">{bookingDetails.poojaName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Preferred Date:</span>
+                      <span className="font-medium">{bookingDetails.preferredDate}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Preferred Time:</span>
+                      <span className="font-medium">{bookingDetails.preferredTime}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-sm rounded-full font-medium">
+                        {bookingDetails.status}
                       </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Time:</span>
-                      <span className="font-medium">{bookingDetails.preferredTime || 'To be scheduled'}</span>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Devotee Information */}
+              {/* Right Column */}
+              <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <h3 className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
                     <User className="w-4 h-4" />
                     Devotee Information
-                  </h4>
-                  <div className="space-y-2">
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Name:</span>
-                      <span className="font-medium">{bookingDetails.userName}</span>
+                      <span className="font-medium">{bookingDetails.devoteeName}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Phone:</span>
-                      <span className="font-medium">{bookingDetails.userPhone}</span>
+                      <span className="font-medium">{bookingDetails.devoteePhone}</span>
                     </div>
-                    {bookingDetails.nakshatra && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 flex items-center gap-1">
-                          <Star className="w-3 h-3" />
-                          Nakshatra:
-                        </span>
-                        <span className="font-medium">{bookingDetails.nakshatra}</span>
-                      </div>
-                    )}
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Nakshatra:</span>
+                      <span className="font-medium">{bookingDetails.nakshatra}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Gotra:</span>
+                      <span className="font-medium">{bookingDetails.gotra}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Payment Information */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-gray-700">Amount Paid:</span>
-                  <div className="flex items-center gap-1 text-temple-maroon font-bold text-lg">
-                    <IndianRupee className="w-5 h-5" />
-                    <span>{bookingDetails.poojaPrice?.toLocaleString('en-IN') || '0'}</span>
+                <div>
+                  <h3 className="font-semibold text-gray-700 mb-2">Payment Details</h3>
+                  <div className="bg-amber-50 rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Amount Paid:</span>
+                      <span className="font-bold text-amber-700">₹{bookingDetails.amount.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Payment ID:</span>
+                      <span className="font-mono text-xs">{bookingDetails.paymentId}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Payment Date:</span>
+                      <span className="text-sm">{new Date(bookingDetails.paymentDate).toLocaleDateString('en-IN')}</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
-              <button
-                onClick={handleDownloadReceipt}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-temple-maroon to-red-700 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Download className="w-5 h-5" />
-                Download Receipt (PDF)
-              </button>
-
-              <button
-                onClick={handleShareWhatsApp}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
-              >
-                <Share2 className="w-5 h-5" />
-                Share on WhatsApp
-              </button>
-
-              <Link href="/" className="block">
-                <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-temple-gold/20 text-temple-maroon rounded-xl font-semibold hover:bg-temple-gold/30 transition-all duration-300 border-2 border-temple-gold/30">
-                  <Home className="w-5 h-5" />
-                  Return to Home
+            <div className="border-t pt-6">
+              <h3 className="font-semibold text-gray-700 mb-4">Share Confirmation</h3>
+              <div className="flex justify-center">
+                <button
+                  onClick={handleShareWhatsApp}
+                  className="flex items-center justify-center gap-2 bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                >
+                  <Share2 className="w-5 h-5" />
+                  Share on WhatsApp
                 </button>
-              </Link>
+              </div>
+            </div>
+
+            {/* Important Notes */}
+            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <h4 className="font-semibold text-yellow-800 mb-2">📝 Important Notes:</h4>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                <li>• Please arrive at the temple 15 minutes before the scheduled time</li>
+                <li>• Carry this receipt (digital or print) for verification</li>
+                <li>• For any changes, please contact the temple at least 24 hours in advance</li>
+                <li>• The pooja will be performed as per temple traditions and schedule</li>
+              </ul>
             </div>
           </div>
         </div>
 
-        {/* Additional Booking CTA */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 mb-3">Want to book another pooja?</p>
-          <Link href="/book-pooja">
-            <Button variant="outline" className="inline-flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Book Another Pooja
-            </Button>
+        {/* Footer Actions */}
+        <div className="mt-8 text-center space-y-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition-colors"
+          >
+            <Home className="w-5 h-5" />
+            Back to Home
           </Link>
+          <p className="text-sm text-gray-600">
+            🙏 Thank you for your devotion and support to the temple
+          </p>
         </div>
       </div>
     </div>
-  )
-}
-
-export default function PoojaConfirmationPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-temple-maroon border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading confirmation...</p>
-        </div>
-      </div>
-    }>
-      <ConfirmationContent />
-    </Suspense>
   )
 }

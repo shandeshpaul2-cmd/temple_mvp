@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Receipt of Donation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* Hard-lock page size & margins to ensure identical layout */
+    @page {
+      size: A4;
+      margin: 0;
+    }
+    html, body {
+      width: 210mm;
+      height: 297mm;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: #3a2a1a;
+    }
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      overflow: hidden;
+      background: #f7f3ea;
+      /* If you have a static background image, embed it (base64 or local asset)
+         and lock its size. Example:
+         background-image: url("data:image/png;base64,AAA...");
+         background-repeat: no-repeat;
+         background-position: center;
+         background-size: cover;
+      */
+    }
+    /* Grid blocks for your exact layout — keep fixed */
+    .frame {
+      position: absolute;
+      inset: 12mm;
+      border: 0.8mm solid rgba(143, 117, 74, 0.6);
+      padding: 10mm 9mm 12mm 9mm;
+      box-sizing: border-box;
+      border-radius: 1mm;
+      background: repeating-linear-gradient(
+        45deg, rgba(0,0,0,0.03) 0, rgba(0,0,0,0.03) 1.2mm, transparent 1.2mm, transparent 2.4mm
+      );
+    }
+
+    .title {
+      text-align: center;
+      margin-top: 6mm;
+      font-weight: 700;
+      font-size: 5mm;
+      line-height: 1.2;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 3.4mm;
+      margin-top: 1mm;
+      opacity: 0.7;
+    }
+
+    .ribbon {
+      width: 60mm;
+      margin: 6mm auto 4mm auto;
+      text-align: center;
+      padding: 2.2mm 3mm;
+      background: #a6362c;
+      color: #fff;
+      border-radius: 2mm;
+      font-weight: 700;
+      letter-spacing: .1mm;
+      font-size: 4mm;
+    }
+
+    .ack {
+      text-align: center;
+      font-size: 3.6mm;
+      margin-top: 3mm;
+      color: #7b5c3f;
+    }
+    .certify {
+      text-align: center;
+      margin-top: 3mm;
+      font-size: 3.6mm;
+      color: #7b5c3f;
+    }
+
+    .donor-name {
+      text-align: center;
+      margin-top: 3mm;
+      font-size: 7mm;
+      letter-spacing: 0.2mm;
+      font-weight: 600;
+      white-space: nowrap;
+      color: #2c1810;
+    }
+    .contrib {
+      text-align: center;
+      margin-top: 2mm;
+      font-size: 3.6mm;
+      color: #5a4a3a;
+    }
+
+    .notes {
+      text-align: center;
+      margin: 6mm auto 0;
+      font-size: 3mm;
+      width: 160mm;
+      color: #6f6a63;
+      font-style: italic;
+    }
+
+    .table {
+      width: 160mm;
+      margin: 9mm auto 0 auto;
+      border-radius: 1.6mm;
+      overflow: hidden;
+      border: 0.3mm solid #ccb796;
+      background: white;
+    }
+    .table .th {
+      background: #e2d3b6;
+      font-weight: 700;
+      text-align: center;
+      padding: 3mm;
+      font-size: 3.6mm;
+      border-bottom: 0.3mm solid #ccb796;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 0.3mm solid #e9dcc0;
+    }
+    .cell {
+      padding: 3.4mm 4mm;
+      font-size: 3.6mm;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-right: 0.1mm solid #f0f0f0;
+    }
+    .cell:last-child {
+      border-right: none;
+    }
+    .label {
+      opacity: .85;
+      font-weight: 500;
+    }
+    .value {
+      font-weight: 600;
+      white-space: nowrap;
+      color: #2c1810;
+    }
+
+    .fineprint {
+      position: absolute;
+      left: 12mm;
+      right: 12mm;
+      bottom: 12mm;
+      text-align: center;
+      font-size: 2.8mm;
+      line-height: 4.2mm;
+      color: #7e756b;
+    }
+
+    /* Temple-specific decorative elements */
+    .om-symbol {
+      text-align: center;
+      font-size: 8mm;
+      margin-top: 4mm;
+      color: #a6362c;
+      font-weight: bold;
+    }
+
+    .decoration-line {
+      width: 80mm;
+      height: 0.5mm;
+      background: linear-gradient(90deg, transparent, #a6362c, transparent);
+      margin: 4mm auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="frame">
+      <div class="title">{{ org_name }}</div>
+      <div class="subtitle">{{ org_subtitle }}</div>
+
+      <div class="decoration-line"></div>
+      <div class="om-symbol">ॐ</div>
+      <div class="decoration-line"></div>
+
+      <div class="ribbon">Receipt of Donation</div>
+
+      <div class="ack">We gratefully acknowledge your contribution</div>
+      <div class="certify">This is to proudly certify that</div>
+
+      <div class="donor-name">{{ donor_name }}</div>
+      <div class="contrib">for their valued contribution</div>
+
+      {% if show_80g_note %}
+      <div class="notes">
+        Donations are eligible for deduction under Section 80G of the Income Tax Act.
+      </div>
+      {% endif %}
+
+      <div class="table">
+        <div class="th">Donation Details</div>
+        <div class="row">
+          <div class="cell"><span class="label">Amount Donated</span> <span class="value">{{ amount|inr }}</span></div>
+          <div class="cell"><span class="label">Donation ID</span> <span class="value">{{ donation_id }}</span></div>
+        </div>
+        <div class="row">
+          <div class="cell"><span class="label">Date</span> <span class="value">{{ donation_date|date_dmy }}</span></div>
+          <div class="cell"><span class="label">Payment Mode</span> <span class="value">{{ payment_mode or '—' }}</span></div>
+        </div>
+      </div>
+
+      <div class="fineprint">
+        GST is not applicable as the amount is contributed to a trust under provisions of Section 12A or 80G of the Income Tax Act.<br/>
+        Rendered: {{ rendered_at }}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,67 +1,38 @@
+// API route for creating donation orders
 import { NextRequest, NextResponse } from 'next/server'
+import { RazorpayService } from '@/lib/razorpay-service'
+
+const razorpayService = new RazorpayService()
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { amount, donorInfo, donationType, donationPurpose, isPoojaBooking: explicitIsPoojaBooking } = body
+    const { amount, currency = 'INR', receipt, notes } = body
 
-    // Validate input
-    if (!amount || amount <= 0) {
+    if (!amount || !receipt) {
       return NextResponse.json(
-        { error: 'Invalid amount' },
+        { error: 'Amount and receipt are required' },
         { status: 400 }
       )
     }
 
-    // Validate donor info
-    if (!donorInfo || !donorInfo.fullName || !donorInfo.phoneNumber) {
-      return NextResponse.json(
-        { error: 'Invalid donor information - fullName and phoneNumber are required' },
-        { status: 400 }
-      )
-    }
-
-    console.log('Received donation request:', { amount, donationType, donorInfo: { fullName: donorInfo.fullName, phoneNumber: donorInfo.phoneNumber } })
-
-    // Simple mock response - no database operations
-    const orderId = `mock_order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    const mockId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-
-    // Check if this is a pooja booking - use explicit flag if provided, otherwise fallback to keyword detection
-    const isPoojaBooking = explicitIsPoojaBooking ||
-                           donationType?.toLowerCase().includes('pooja') ||
-                           donationPurpose?.toLowerCase().includes('pooja') ||
-                           donationType?.toLowerCase().includes('homam') ||
-                           donationType?.toLowerCase().includes('archana')
-
-    return NextResponse.json({
-      orderId: orderId,
-      amount: Math.round(amount * 100),
-      currency: 'INR',
-      donationId: mockId,
-      isMock: true,
-      isPoojaBooking,
+    const order = await razorpayService.createOrder({
+      amount: amount * 100, // Convert to paise
+      currency,
+      receipt,
+      notes
     })
+
+    return NextResponse.json({ success: true, order })
   } catch (error) {
-    console.error('Error creating order:', error)
+    console.error('Error creating Razorpay order:', error)
     return NextResponse.json(
-      { error: 'Failed to create order' },
+      { error: 'Failed to create payment order' },
       { status: 500 }
     )
   }
 }
 
-// Helper function to get fiscal year
-function getFiscalYear(): string {
-  const now = new Date()
-  const month = now.getMonth() + 1 // 1-12
-  const year = now.getFullYear()
-
-  if (month >= 4) {
-    // April onwards - current year to next year
-    return `${year}-${(year + 1) % 100}`
-  } else {
-    // Jan-Mar - previous year to current year
-    return `${year - 1}-${year % 100}`
-  }
+export async function GET() {
+  return NextResponse.json({ message: 'Donation create-order API endpoint' })
 }
