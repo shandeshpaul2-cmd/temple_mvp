@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
             await whatsappService.sendDonationReceiptToDonor(
               {
                 ...donationDetails,
-                attachmentMessage: `📎 *Your Donation Certificate is attached!*
+                attachmentMessage: `📎 *Your Donation Certificate is ready!*
 
 Dear ${donationDetails.userInfo?.fullName || donationDetails.donorName || 'Devotee'},
 
@@ -108,7 +108,8 @@ Dear ${donationDetails.userInfo?.fullName || donationDetails.donorName || 'Devot
 
 📞 *Devotee Contact:* ${donationDetails.userInfo?.phoneNumber || donationDetails.donorPhone}
 
-📎 *Certificate:* Please find your 80G donation certificate attached.
+📎 *80G Certificate:* Download your tax exemption certificate:
+🔗 http://106.51.129.224:3011/certificate/${donationDetails.receiptNumber}
 
 🙏 *May Sri Raghavendra Swamy bless you and your family!*
 
@@ -118,7 +119,7 @@ For any queries, please contact: +918310408797
 *Shri Raghavendra Swamy Brundavana Sannidhi*
 *Service to Humanity is Service to God*`
               },
-              certificateUrl,
+              undefined, // Don't send as attachment
               false // Only send to 7760118171, not to admin
             )
             console.log('✅ Certificate sent successfully via WhatsApp to 7760118171')

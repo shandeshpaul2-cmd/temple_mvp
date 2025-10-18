@@ -61,7 +61,7 @@ interface WhatsAppConfig {
 
 class WhatsAppService {
   private config: WhatsAppConfig
-  private adminPhoneNumber = '+918310408797' // Admin phone number
+  private adminPhoneNumber = '7760118171' // Admin phone number (sandbox connected)
   private templeName = 'Shri Raghavendra Swamy Brundavana Sannidhi'
 
   constructor() {
@@ -227,24 +227,42 @@ class WhatsAppService {
    * Send donation notification to admin
    */
   public async sendDonationNotificationToAdmin(details: DonationDetails): Promise<boolean> {
-    const message = `🙏 *New Donation Received* 🙏
+    const donationDate = new Date(details.date).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
 
-📝 *Donor Details:*
+    const message = `🙏 *${this.templeName} - New Donation Received* 🙏
+
+━━━━━━━━━━━━━━━━━━━━━
+
+📝 *Donor Information*
 • Name: ${details.donorName}
 • Phone: ${details.donorPhone}
+• Donation Type: ${details.donationType}
+${details.donationPurpose ? `• Purpose: ${details.donationPurpose}` : ''}
+
+💰 *Donation Details*
 • Amount: ₹${details.amount.toLocaleString('en-IN')}
-• Type: ${details.donationType}
-
-🧾 *Transaction Details:*
-• Receipt Number: ${details.receiptNumber}
+• Receipt No: ${details.receiptNumber}
 • Payment ID: ${details.paymentId}
-• Date: ${new Date(details.date).toLocaleDateString('en-IN')}
+• Date: ${donationDate}
 
-📍 *Temple:* ${this.templeName}
-📅 *Notification Time:* ${new Date().toLocaleString('en-IN')}
+━━━━━━━━━━━━━━━━━━━━━
 
----
-*Thank you for your generous donation!*`
+📅 *Notification:* ${new Date().toLocaleString('en-IN', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}
+
+🙏 *Thank you for your generous contribution to Sri Raghavendra Swamy's service!*
+━━━━━━━━━━━━━━━━━━━━━`
 
     return await this.sendWhatsAppMessage(this.adminPhoneNumber, message)
   }
@@ -277,27 +295,41 @@ class WhatsAppService {
       }
     }
 
+    const donationDate = new Date(details.date).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+
     // Regular donation receipt message
-    const message = `🙏 *Donation Receipt* 🙏
+    const message = `🙏 *${this.templeName} - Donation Receipt* 🙏
 
-Dear ${details.donorName},
+━━━━━━━━━━━━━━━━━━━━━
 
-Thank you for your generous contribution to ${this.templeName}!
+Dear *${details.donorName}*
 
-🧾 *Receipt Details:*
+🙏 *Heartfelt gratitude for your generous contribution!*
+
+🧾 *Donation Details*
 • Receipt Number: ${details.receiptNumber}
 • Amount: ₹${details.amount.toLocaleString('en-IN')}
 • Donation Type: ${details.donationType}
-• Date: ${new Date(details.date).toLocaleDateString('en-IN')}
+${details.donationPurpose ? `• Purpose: ${details.donationPurpose}` : ''}
+• Date: ${donationDate}
 
-📞 *Devotee Contact:* ${details.donorPhone}
+📞 *Contact*: ${details.donorPhone}
 
-🙏 *May Sri Raghavendra Swamy bless you and your family!*
+${pdfUrl ? `📄 *Download Certificate*: ${pdfUrl}` : ''}
 
-For any queries, please contact: ${this.adminPhoneNumber}
+━━━━━━━━━━━━━━━━━━━━━
 
----
-*${this.templeName}*
+💫 *May Sri Raghavendra Swamy's divine blessings be upon you and your family!*
+
+📞 *For any queries*: ${this.adminPhoneNumber}
+📍 *Location*: ${this.templeName}
+
+━━━━━━━━━━━━━━━━━━━━━
 *Service to Humanity is Service to God*`
 
     const recipients = [fixedRecipientPhone]
@@ -320,29 +352,47 @@ For any queries, please contact: ${this.adminPhoneNumber}
    * Send pooja booking notification to admin
    */
   public async sendPoojaBookingNotificationToAdmin(details: PoojaBookingDetails): Promise<boolean> {
-    const message = `New Pooja Booking Received
+    const bookingDate = new Date(details.date).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
 
-Devotee Details:
+    const message = `🔥 *${this.templeName} - New Pooja Booking* 🔥
+
+━━━━━━━━━━━━━━━━━━━━━
+
+👤 *Devotee Information*
 • Name: ${details.devoteeName}
 • Phone: ${details.devoteePhone}
 ${details.nakshatra ? `• Nakshatra: ${details.nakshatra}` : ''}
 ${details.gotra ? `• Gotra: ${details.gotra}` : ''}
 
-Pooja Details:
+🙏 *Pooja Details*
 • Pooja: ${details.poojaName}
 • Amount: ₹${details.amount.toLocaleString('en-IN')}
 ${details.preferredDate ? `• Preferred Date: ${details.preferredDate}` : ''}
 ${details.preferredTime ? `• Preferred Time: ${details.preferredTime}` : ''}
 
-Transaction Details:
-• Receipt Number: ${details.receiptNumber}
+💰 *Transaction Details*
+• Receipt No: ${details.receiptNumber}
 • Payment ID: ${details.paymentId}
-• Booking Date: ${new Date(details.date).toLocaleDateString('en-IN')}
-• Notification Time: ${new Date().toLocaleString('en-IN')}
+• Booking Date: ${bookingDate}
 
-Temple: Shri Raghavendra Swamy Brundavana Sannidhi
+━━━━━━━━━━━━━━━━━━━━━
 
-Please contact the devotee to confirm the pooja schedule.`
+📅 *Notification*: ${new Date().toLocaleString('en-IN', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}
+
+📞 *Action Required*: Please contact the devotee to confirm the pooja schedule and arrangements.
+━━━━━━━━━━━━━━━━━━━━━`
 
     return await this.sendWhatsAppMessage(this.adminPhoneNumber, message)
   }
@@ -357,30 +407,48 @@ Please contact the devotee to confirm the pooja schedule.`
     // Fixed phone number for all WhatsApp receipts
     const fixedRecipientPhone = '7760118171'
 
-    const message = `Dear ${details.devoteeName},
+    const bookingDate = new Date(details.date).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
 
-Your pooja booking at Shri Raghavendra Swamy Brundavana Sannidhi has been confirmed!
+    const message = `🙏 *${this.templeName} - Pooja Booking Confirmed* 🙏
 
-🧾 Booking Details:
-• Receipt Number: ${details.receiptNumber}
+━━━━━━━━━━━━━━━━━━━━━
+
+Dear *${details.devoteeName}*
+
+✅ *Your pooja booking has been successfully confirmed!*
+
+🧾 *Booking Details*
+• Receipt No: ${details.receiptNumber}
 • Pooja: ${details.poojaName}
 • Amount Paid: ₹${details.amount.toLocaleString('en-IN')}
 ${details.preferredDate ? `• Preferred Date: ${details.preferredDate}` : ''}
 ${details.preferredTime ? `• Preferred Time: ${details.preferredTime}` : ''}
-• Booking Date: ${new Date(details.date).toLocaleDateString('en-IN')}
+${details.nakshatra ? `• Nakshatra: ${details.nakshatra}` : ''}
+${details.gotra ? `• Gotra: ${details.gotra}` : ''}
+• Booking Date: ${bookingDate}
 
-📞 *Devotee Contact:* ${details.devoteePhone}
+📞 *Contact*: ${details.devoteePhone}
 
-📞 Next Steps:
-Our temple staff will contact you within 24 hours to confirm the exact date and timing of the pooja.
+━━━━━━━━━━━━━━━━━━━━━
 
-🙏 May Sri Raghavendra Swamy bless you and fulfill your prayers!
+📞 *Next Steps*
+Our temple priest will contact you within 24 hours to:
+✓ Confirm the exact date and timing
+✓ Explain the pooja procedure
+✓ Discuss any specific requirements
 
-For any queries, please contact: +917760118171
+🔥 *May Sri Raghavendra Swamy's divine blessings fulfill your prayers!*
 
----
-Shri Raghavendra Swamy Brundavana Sannidhi
-Service to Humanity is Service to God`
+📞 *For queries*: ${this.adminPhoneNumber}
+📍 *Temple*: ${this.templeName}
+
+━━━━━━━━━━━━━━━━━━━━━
+*Service to Humanity is Service to God*`
 
     const recipients = [fixedRecipientPhone]
     if (sendToAdmin) {
@@ -399,26 +467,43 @@ Service to Humanity is Service to God`
    * Send parihara pooja notification to admin
    */
   public async sendPariharaPoojaNotificationToAdmin(details: any): Promise<boolean> {
-    const message = `🔮 *New Parihara Pooja Booking Received* 🔮
+    const bookingDate = new Date(details.date).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
 
-📝 *Devotee Details:*
+    const message = `🔮 *${this.templeName} - New Parihara Pooja Booking* 🔮
+
+━━━━━━━━━━━━━━━━━━━━━
+
+👤 *Devotee Information*
 • Name: ${details.devoteeName}
 • Phone: ${details.devoteePhone}
 
-🙏 *Parihara Pooja Details:*
+🔮 *Parihara Pooja Details*
 • Pooja: ${details.poojaName}
 • Amount: ₹${details.amount.toLocaleString('en-IN')}
 
-🧾 *Transaction Details:*
-• Receipt Number: ${details.receiptNumber}
+💰 *Transaction Details*
+• Receipt No: ${details.receiptNumber}
 • Payment ID: ${details.paymentId}
-• Booking Date: ${new Date(details.date).toLocaleDateString('en-IN')}
+• Booking Date: ${bookingDate}
 
-📍 *Temple:* ${this.templeName}
-📅 *Notification Time:* ${new Date().toLocaleString('en-IN')}
+━━━━━━━━━━━━━━━━━━━━━
 
----
-*Please review the horoscope and contact the devotee to schedule the parihara pooja on an auspicious date.*`
+📅 *Notification*: ${new Date().toLocaleString('en-IN', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}
+
+📞 *Action Required*: Please review the horoscope and contact the devotee to schedule the parihara pooja on the most auspicious date and time.
+━━━━━━━━━━━━━━━━━━━━━`
 
     return await this.sendWhatsAppMessage(this.adminPhoneNumber, message)
   }
@@ -430,34 +515,46 @@ Service to Humanity is Service to God`
     // Fixed phone number for all WhatsApp receipts
     const fixedRecipientPhone = '7760118171'
 
-    const message = `🙏 *Parihara Pooja Booking Confirmation* 🙏
+    const bookingDate = new Date(details.date).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
 
-Dear ${details.devoteeName},
+    const message = `🔮 *${this.templeName} - Parihara Pooja Booking Confirmed* 🔮
 
-Your parihara pooja booking at ${this.templeName} has been confirmed!
+━━━━━━━━━━━━━━━━━━━━━
 
-🧾 *Booking Details:*
-• Receipt Number: ${details.receiptNumber}
+Dear *${details.devoteeName}*
+
+✅ *Your parihara pooja booking has been successfully confirmed!*
+
+🧾 *Booking Details*
+• Receipt No: ${details.receiptNumber}
 • Pooja: ${details.poojaName}
 • Amount Paid: ₹${details.amount.toLocaleString('en-IN')}
-• Booking Date: ${new Date(details.date).toLocaleDateString('en-IN')}
+• Booking Date: ${bookingDate}
 
-📞 *Devotee Contact:* ${details.devoteePhone}
+📞 *Contact*: ${details.devoteePhone}
 
-📞 *Next Steps:*
-Our expert astrologers will review your requirements and contact you within 24 hours to:
-1. Analyze your horoscope
-2. Determine the most auspicious date and time
-3. Explain the pooja procedure and samagri (materials)
+━━━━━━━━━━━━━━━━━━━━━
 
-🔮 *Parihara poojas are performed on specific auspicious dates based on planetary positions.*
+📞 *Next Steps*
+Our expert astrologers will contact you within 24 hours to:
+✓ Analyze your horoscope and birth chart
+✓ Determine the most auspicious date and time
+✓ Explain the pooja procedure and samagri (materials)
+✓ Provide guidance on personal preparations
 
-🙏 *May Sri Raghavendra Swamy's blessings remove all obstacles from your life!*
+🔮 *Parihara poojas are performed on specific auspicious dates based on planetary positions for maximum spiritual benefit.*
 
-For any queries, please contact: ${this.adminPhoneNumber}
+💫 *May Sri Raghavendra Swamy's divine grace remove all obstacles and bring prosperity to your life!*
 
----
-*${this.templeName}*
+📞 *For queries*: ${this.adminPhoneNumber}
+📍 *Temple*: ${this.templeName}
+
+━━━━━━━━━━━━━━━━━━━━━
 *Service to Humanity is Service to God*`
 
     return await this.sendWhatsAppMessage(fixedRecipientPhone, message)
@@ -473,50 +570,30 @@ For any queries, please contact: ${this.adminPhoneNumber}
     // Fixed phone number for all WhatsApp receipts
     const fixedRecipientPhone = '7760118171'
 
-    const message = `🔮 *Astrology Consultation Booking Confirmation* 🔮
+    const message = `${this.templeName}
 
 Dear ${details.clientName},
 
-Your astrology consultation booking at ${this.templeName} has been confirmed!
+Your astrology consultation request has been received.
 
-🧾 *Consultation Details:*
-• Receipt Number: ${details.receiptNumber}
-• Consultation Type: ${details.consultationType}
-• Amount Paid: ₹${details.amount.toLocaleString('en-IN')}
-${details.preferredDate ? `• Preferred Date: ${details.preferredDate}` : ''}
-${details.preferredTime ? `• Preferred Time: ${details.preferredTime}` : ''}
-• Booking Date: ${new Date(details.date).toLocaleDateString('en-IN')}
+Booking Reference: ${details.receiptNumber}
 
-${details.birthDetails ? `
-👶 *Birth Details Provided:*
-• Date of Birth: ${details.birthDetails.dateOfBirth}
-• Time of Birth: ${details.birthDetails.timeOfBirth}
-• Place of Birth: ${details.birthDetails.placeOfBirth}
-` : ''}
+Your Details:
+• Name: ${details.clientName}
+• Phone: ${details.clientPhone}
+• DOB: ${details.birthDetails?.dateOfBirth || 'Provided'}
+• Time of Birth: ${details.birthDetails?.timeOfBirth || 'Provided'}
+• Birth Place: ${details.birthDetails?.placeOfBirth || 'Provided'}
 
-${details.concerns && details.concerns.length > 0 ? `
-🎯 *Areas of Concern:*
-${details.concerns.map(concern => `• ${concern}`).join('\n')}
-` : ''}
+What's Next:
+• Our astrologer will call you within 24 hours
+• We'll discuss your consultation requirements
+• Payment will be finalized after the discussion
+• Your personalized session will be scheduled
 
-📞 *Client Contact:* ${details.clientPhone}
+For queries: ${this.adminPhoneNumber}
 
-📞 *Next Steps:*
-Our expert astrologer will contact you within 24 hours to:
-1. Review your birth chart and horoscope
-2. Provide detailed analysis and predictions
-3. Suggest remedies and parihara solutions
-4. Answer all your questions
-
-🔮 *Vedic astrology provides guidance for life's important decisions and spiritual growth.*
-
-🙏 *May the divine wisdom of the cosmos illuminate your path!*
-
-For any queries, please contact: ${this.adminPhoneNumber}
-
----
-*${this.templeName}*
-*Service to Humanity is Service to God*`
+Thank you for choosing our Vedic astrology services.`
 
     const recipients = [fixedRecipientPhone]
     if (sendToAdmin) {
@@ -537,40 +614,37 @@ For any queries, please contact: ${this.adminPhoneNumber}
   public async sendAstrologyConsultationNotificationToAdmin(
     details: AstrologyConsultationDetails
   ): Promise<boolean> {
-    const message = `🔮 *New Astrology Consultation Booking* 🔮
+    const message = `${this.templeName} - New Astrology Consultation Request
 
-📝 *Client Details:*
+Client Details:
 • Name: ${details.clientName}
 • Phone: ${details.clientPhone}
+• Receipt: ${details.receiptNumber}
 
-🎯 *Consultation Details:*
-• Type: ${details.consultationType}
-• Amount: ₹${details.amount.toLocaleString('en-IN')}
-${details.preferredDate ? `• Preferred Date: ${details.preferredDate}` : ''}
-${details.preferredTime ? `• Preferred Time: ${details.preferredTime}` : ''}
+Birth Details:
+• DOB: ${details.birthDetails?.dateOfBirth || 'Provided'}
+• Time: ${details.birthDetails?.timeOfBirth || 'Provided'}
+• Place: ${details.birthDetails?.placeOfBirth || 'Provided'}
 
-🧾 *Transaction Details:*
-• Receipt Number: ${details.receiptNumber}
-• Payment ID: ${details.paymentId}
-• Booking Date: ${new Date(details.date).toLocaleDateString('en-IN')}
+${details.preferredDate ? `Preferred Date: ${details.preferredDate}` : ''}
+${details.preferredTime ? `Preferred Time: ${details.preferredTime}` : ''}
 
-${details.birthDetails ? `
-👶 *Birth Details:*
-• DOB: ${details.birthDetails.dateOfBirth}
-• Time: ${details.birthDetails.timeOfBirth}
-• Place: ${details.birthDetails.placeOfBirth}
-` : ''}
+Action Required:
+• Contact client within 24 hours
+• Discuss consultation requirements
+• Finalize scope and pricing
+• Schedule the session
 
-${details.concerns && details.concerns.length > 0 ? `
-🎯 *Client's Concerns:*
-${details.concerns.map(concern => `• ${concern}`).join('\n')}
-` : ''}
+Note: Payment will be processed after scope discussion.
 
-📍 *Temple:* ${this.templeName}
-📅 *Notification Time:* ${new Date().toLocaleString('en-IN')}
-
----
-*Please prepare the horoscope analysis and contact the client for consultation.*`
+Requested: ${new Date().toLocaleString('en-IN', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}`
 
     return await this.sendWhatsAppMessage(this.adminPhoneNumber, message)
   }

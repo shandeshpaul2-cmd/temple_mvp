@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { ArrowLeft, Calendar, Clock, User, Phone, IndianRupee, Check, Star, Heart } from 'lucide-react'
 import { useLanguage } from '@/shared/contexts/contexts/LanguageContext'
 import { Button } from '@/shared/components/ui'
-import PaymentPortal, { PaymentItem } from '@/features/payments/components/payment/PaymentPortal'
 
 interface PariharaService {
   id: number
@@ -21,7 +20,6 @@ interface PariharaService {
 interface FormData {
   name: string
   phone: string
-  email: string
   nakshatra: string
   gotra: string
   date: string
@@ -109,13 +107,11 @@ function PariharaBookingFormPageContent() {
 
   const [service, setService] = useState<PariharaService | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [showPayment, setShowPayment] = useState(false)
 
   const [formData, setFormData] = useState<FormData>({
     name: '',
     phone: '',
-    email: '',
-    nakshatra: '',
+      nakshatra: '',
     gotra: '',
     date: '',
     timeSlot: '',
@@ -225,12 +221,7 @@ function PariharaBookingFormPageContent() {
       }
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email address is required'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address'
-    }
-
+  
     if (!formData.date) {
       newErrors.date = 'Please select a date'
     } else {
@@ -258,7 +249,7 @@ function PariharaBookingFormPageContent() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Parihara form submitted:', formData)
     console.log('Service:', service)
@@ -268,23 +259,55 @@ function PariharaBookingFormPageContent() {
       return
     }
 
-    console.log('Form validation passed, showing payment portal')
-    setShowPayment(true)
+    try {
+      // Generate receipt number
+      const receiptNumber = `PH-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
+
+      // Store parihara booking in database
+      const response = await fetch('/api/payments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          paymentType: 'parihara',
+          amount: service.price,
+          userInfo: {
+            fullName: formData.name,
+            phoneNumber: formData.phone
+          },
+          items: [{
+            name: service.poojaName,
+            description: service.description
+          }],
+          serviceDetails: {
+            preferredDate: formData.date,
+            preferredTime: formData.timeSlot,
+            nakshatra: formData.nakshatra,
+            gotra: formData.gotra,
+            specificIssue: formData.specificIssue
+          },
+          receiptNumber: receiptNumber,
+          paymentId: 'direct-' + Date.now(),
+          status: 'completed'
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Redirect to confirmation page with real receipt number
+        router.push(`/parihara-pooja/confirmation/${data.receiptNumber || receiptNumber}`)
+      } else {
+        alert('Failed to process parihara booking. Please try again.')
+      }
+    } catch (error) {
+      console.error('Parihara booking error:', error)
+      alert('Something went wrong. Please try again.')
+    }
   }
 
-  const handlePaymentSuccess = (receiptNumber: string, paymentId: string) => {
-    router.push(`/parihara-pooja/confirmation/${receiptNumber}`)
-  }
-
-  const handlePaymentError = (error: string) => {
-    alert(error)
-    setShowPayment(false)
-  }
-
-  const handleBackFromPayment = () => {
-    setShowPayment(false)
-  }
-
+  
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     if (errors[field]) {
@@ -292,42 +315,7 @@ function PariharaBookingFormPageContent() {
     }
   }
 
-  // Payment items for the portal
-  const paymentItems: PaymentItem[] = service ? [
-    {
-      id: 'parihara_' + service.id + '_' + Date.now(),
-      name: service.poojaName,
-      description: service.description,
-      amount: service.price,
-      type: 'parihara',
-      metadata: {
-        pariharaId: service.id,
-        preferredDate: formData.date,
-        preferredTime: formData.timeSlot,
-        nakshatra: formData.nakshatra,
-        gotra: formData.gotra,
-        specificIssue: formData.specificIssue,
-      },
-    },
-  ] : []
-
-  // Show payment portal when form is submitted
-  if (showPayment && service) {
-    return (
-      <PaymentPortal
-        items={paymentItems}
-        userInfo={{
-          fullName: formData.name,
-          phoneNumber: formData.phone,
-          emailAddress: formData.email,
-        }}
-        onBack={handleBackFromPayment}
-        onSuccess={handlePaymentSuccess}
-        onError={handlePaymentError}
-      />
-    )
-  }
-
+  
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-red-50 flex items-center justify-center">
@@ -445,25 +433,7 @@ function PariharaBookingFormPageContent() {
                 {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-temple-gold focus:border-transparent ${
-                      errors.email ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="Enter your email address"
-                  />
-                </div>
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-              </div>
-
+  
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   <Star className="inline w-4 h-4 mr-1" />
@@ -568,53 +538,31 @@ function PariharaBookingFormPageContent() {
           </div>
 
           {/* Booking Summary */}
-          <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-4 sm:p-6 border-2 border-red-200">
-            <h3 className="font-semibold text-temple-maroon mb-3">Booking Summary</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Parihara Service:</span>
-                <span className="font-medium text-temple-maroon">{service.poojaName}</span>
-              </div>
-              {formData.date && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Date:</span>
-                  <span className="font-medium">{new Date(formData.date).toLocaleDateString('en-IN')}</span>
-                </div>
-              )}
-              {formData.timeSlot && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Time:</span>
-                  <span className="font-medium">{formData.timeSlot}</span>
-                </div>
-              )}
-              <div className="border-t pt-2 mt-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-temple-maroon">Total Amount:</span>
-                  <div className="flex items-center gap-1 font-bold text-temple-maroon text-lg">
-                    <IndianRupee className="w-5 h-5" />
-                    <span>{service.price}</span>
-                  </div>
-                </div>
-              </div>
+          <div className="mt-8 p-6 bg-purple-50 rounded-lg">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-lg font-semibold text-purple-800">Selected Parihara:</span>
+              <span className="text-xl font-bold text-purple-600">
+                {service.poojaName} - ₹{service.price.toLocaleString('en-IN')}
+              </span>
             </div>
+
+            <button
+              type="submit"
+              disabled={!formData.name || !formData.phone || !formData.date || !formData.timeSlot || !formData.nakshatra || !formData.specificIssue}
+              className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              Book Parihara - ₹{service.price.toLocaleString('en-IN')}
+            </button>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4">
-            <Link
-              href="/parihara-pooja"
-              className="flex-1 px-6 py-3 border-2 border-temple-maroon text-temple-maroon rounded-lg font-semibold hover:bg-temple-maroon hover:text-white transition-colors text-center"
-            >
-              Cancel
-            </Link>
-            <Button
-              type="submit"
-              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
-            >
-              Proceed to Payment
-            </Button>
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h3 className="font-semibold text-blue-800 mb-2">Divine Scheduling Confirmation</h3>
+            <p className="text-sm text-gray-600">
+              You will receive a sacred booking confirmation with receipt details on WhatsApp immediately after booking. The temple priest's office will also receive your scheduling details for divine arrangements.
+            </p>
           </div>
-        </form>
+
+                  </form>
       </div>
     </div>
   )

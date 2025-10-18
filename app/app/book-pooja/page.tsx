@@ -9,7 +9,6 @@ export default function BookPoojaPage() {
   const [amount, setAmount] = useState('')
   const [devoteeName, setDevoteeName] = useState('')
   const [devoteePhone, setDevoteePhone] = useState('')
-  const [devoteeEmail, setDevoteeEmail] = useState('')
   const [preferredDate, setPreferredDate] = useState('')
   const [preferredTime, setPreferredTime] = useState('')
   const [nakshatra, setNakshatra] = useState('')
@@ -42,7 +41,7 @@ export default function BookPoojaPage() {
   }
 
   const handleBookPooja = async () => {
-    if (!poojaName || !amount || !devoteeName || !devoteePhone || !devoteeEmail) {
+    if (!poojaName || !amount || !devoteeName || !devoteePhone) {
       alert('Please fill all required fields')
       return
     }
@@ -62,8 +61,7 @@ export default function BookPoojaPage() {
           amount: parseInt(amount),
           userInfo: {
             fullName: devoteeName,
-            phoneNumber: devoteePhone,
-            emailAddress: devoteeEmail
+            phoneNumber: devoteePhone
           },
           items: [{
             name: poojaName,
@@ -161,19 +159,6 @@ export default function BookPoojaPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={devoteeEmail}
-                    onChange={(e) => setDevoteeEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Enter your email address"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Preferred Date
                   </label>
                   <input
@@ -238,7 +223,7 @@ export default function BookPoojaPage() {
 
             <button
               onClick={handleBookPooja}
-              disabled={!poojaName || !amount || !devoteeName || !devoteePhone || !devoteeEmail}
+              disabled={!poojaName || !amount || !devoteeName || !devoteePhone}
               className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               Book Pooja - ₹{amount ? parseInt(amount).toLocaleString('en-IN') : '0'}
@@ -248,7 +233,7 @@ export default function BookPoojaPage() {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <h3 className="font-semibold text-blue-800 mb-2">Divine Scheduling Confirmation</h3>
             <p className="text-sm text-gray-600">
-              You will receive a sacred booking confirmation with receipt details on both WhatsApp and email immediately after payment. The temple priest's office will also receive your scheduling details for divine arrangements.
+              You will receive a sacred booking confirmation with receipt details on WhatsApp immediately after payment. The temple priest's office will also receive your scheduling details for divine arrangements.
             </p>
           </div>
         </div>

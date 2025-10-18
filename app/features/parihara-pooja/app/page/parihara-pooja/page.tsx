@@ -19,7 +19,6 @@ export default function PariharaPoojaPage() {
   const [services, setServices] = useState<PariharaService[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedService, setSelectedService] = useState<string>('')
-  const [paymentAmount, setPaymentAmount] = useState('')
 
   useEffect(() => {
     fetchServices()
@@ -86,18 +85,7 @@ export default function PariharaPoojaPage() {
     }
   }
 
-  const handlePayment = () => {
-    if (selectedService && paymentAmount) {
-      // Get the selected service name
-      const service = services.find(s => s.id === selectedService)
-      const serviceName = service ? service.poojaName : 'Parihara Pooja'
-
-      // Navigate to unified payment portal with details
-      const paymentUrl = `/payment?type=parihara_pooja&serviceId=${selectedService}&serviceName=${encodeURIComponent(serviceName)}&amount=${paymentAmount}`
-      router.push(paymentUrl)
-    }
-  }
-
+  
   const handleCallNow = () => {
     // Temple phone number
     window.open('tel:+917760118171', '_blank')
@@ -193,24 +181,7 @@ export default function PariharaPoojaPage() {
             <div className="h-1.5 bg-gradient-to-r from-temple-maroon via-temple-gold to-temple-maroon"></div>
 
             <div className="p-6 sm:p-8">
-              {/* Payment Information - Moved Above */}
-              <div className="bg-temple-cream/30 rounded-xl p-4 border border-temple-gold/20 mb-6">
-                <h3 className="font-cinzel text-base font-bold text-temple-maroon mb-3 text-center">
-                  Payment Information
-                </h3>
-                <div className="text-center space-y-2">
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    <span className="font-semibold">To know the exact payment amount:</span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Please consult with our temple priests first to understand the complete pricing structure based on your specific requirements and the complexity of the pooja.
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Pricing varies depending on the type of pooja, materials required, and duration. Our temple staff will guide you through the complete process and costs.
-                  </p>
-                </div>
-              </div>
-
+              
               <h2 className="font-cinzel text-xl sm:text-2xl font-bold text-temple-maroon mb-6 text-center">
                 Select a Pooja Service
               </h2>
@@ -232,38 +203,13 @@ export default function PariharaPoojaPage() {
                 </select>
               </div>
 
-              {/* Payment Option */}
-              <div className="bg-gradient-to-r from-temple-gold/10 to-temple-cream/50 rounded-xl p-4 border border-temple-gold/20 mb-6">
-                <h3 className="font-cinzel text-base font-bold text-temple-maroon mb-3 text-center">
-                  Quick Payment Option
-                </h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Enter Payment Amount (₹)
-                    </label>
-                    <input
-                      type="number"
-                      value={paymentAmount}
-                      onChange={(e) => setPaymentAmount(e.target.value)}
-                      placeholder="Enter amount"
-                      className="w-full px-4 py-3 rounded-xl border-2 border-temple-gold/20 focus:border-temple-gold focus:outline-none transition-colors"
-                      min="1"
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 text-center">
-                    After consulting with temple priests, enter the agreed amount and proceed to payment
-                  </p>
-                </div>
-              </div>
-
-              {/* Payment Button */}
+              {/* Book Now Button */}
               <button
-                onClick={handlePayment}
-                disabled={!selectedService || !paymentAmount}
-                className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+                onClick={handleBookNow}
+                disabled={!selectedService}
+                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
               >
-                Proceed to Payment
+                Book Parihara Pooja
               </button>
             </div>
           </div>

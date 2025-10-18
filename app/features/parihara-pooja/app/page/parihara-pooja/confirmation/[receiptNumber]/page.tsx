@@ -51,35 +51,31 @@ function PariharaConfirmationContent() {
 
   if (!receiptNumber) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-red-50 flex items-center justify-center py-12 px-4">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Invalid parihara booking confirmation</p>
-          <Link href="/parihara-pooja">
-            <Button>Back to Parihara Services</Button>
-          </Link>
-        </div>
+      <div className="text-center py-12">
+        <p className="text-gray-600 mb-4">Invalid parihara booking confirmation</p>
+        <Link href="/parihara-pooja">
+          <Button>Back to Parihara Services</Button>
+        </Link>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-red-50 flex items-center justify-center py-12 px-4">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <Link href="/parihara-pooja">
-            <Button>Back to Parihara Services</Button>
-          </Link>
-        </div>
+      <div className="text-center py-12">
+        <p className="text-red-600 mb-4">{error}</p>
+        <Link href="/parihara-pooja">
+          <Button>Back to Parihara Services</Button>
+        </Link>
       </div>
     )
   }
 
   if (!bookingDetails) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-red-50 flex items-center justify-center py-12 px-4">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-temple-maroon border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading parihara booking details...</p>
         </div>
       </div>
@@ -105,20 +101,24 @@ function PariharaConfirmationContent() {
   }
 
   const handleGetDirections = () => {
-    const templeAddress = "Guru Seva Mandali, [Your Temple Address Here]"
+    const templeAddress = "Sri Raghavendra Brindavana Sannidhi, #12, 1st Main Road, Girinagar, 1st Phase, Bengaluru, Karnataka - 560085"
     const encodedAddress = encodeURIComponent(templeAddress)
     window.open(`https://maps.google.com/?q=${encodedAddress}`, '_blank')
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-red-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Success Card */}
-        <div className="bg-white rounded-3xl shadow-2xl border-2 border-temple-gold/20 overflow-hidden">
-          {/* Top Accent Bar */}
-          <div className="h-2 bg-gradient-to-r from-red-600 via-temple-gold to-red-600"></div>
+  const handleCallUs = () => {
+    window.open('tel:+917760118171', '_blank')
+  }
 
-          <div className="p-8 sm:p-12">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 flex items-center justify-center py-8 px-4">
+      <div className="max-w-xl w-full">
+        {/* Success Card */}
+        <div className="bg-white rounded-3xl shadow-xl border-2 border-red-100 overflow-hidden">
+          {/* Top Accent Bar */}
+          <div className="h-2 bg-gradient-to-r from-red-600 via-rose-600 to-red-600"></div>
+
+          <div className="p-8">
             {/* Success Icon */}
             <div className="flex justify-center mb-6">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -128,8 +128,8 @@ function PariharaConfirmationContent() {
 
             {/* Success Message */}
             <div className="text-center mb-8">
-              <h1 className="font-cinzel text-3xl sm:text-4xl font-bold text-temple-maroon mb-3">
-                🔮 Parihara Pooja Booked Successfully!
+              <h1 className="font-cinzel text-3xl font-bold text-red-800 mb-3">
+                Parihara Pooja Booked Successfully
               </h1>
               <p className="text-gray-600 text-lg mb-2">
                 Your parihara pooja booking has been confirmed
@@ -140,164 +140,216 @@ function PariharaConfirmationContent() {
             </div>
 
             {/* Decorative Divider */}
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent to-temple-gold"></div>
-              <div className="text-2xl text-temple-gold">ॐ</div>
-              <div className="h-px w-16 bg-gradient-to-l from-transparent to-temple-gold"></div>
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <div className="h-px w-16 bg-gradient-to-r from-transparent to-red-400"></div>
+              <div className="text-2xl text-red-400">✦</div>
+              <div className="h-px w-16 bg-gradient-to-l from-transparent to-red-400"></div>
             </div>
 
             {/* Receipt Number */}
-            <div className="bg-temple-cream/30 rounded-xl p-6 border border-temple-gold/20 mb-8">
-              <p className="text-sm text-gray-600 mb-2 text-center">Receipt Number</p>
-              <p className="text-2xl font-bold text-temple-maroon text-center font-mono tracking-wider">
-                {receiptNumber}
-              </p>
+            <div className="bg-red-50 rounded-2xl p-6 mb-8">
+              <h3 className="font-cinzel text-xl font-bold text-red-800 mb-4 flex items-center gap-2">
+                <Heart className="w-5 h-5" />
+                Parihara Booking Details
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Receipt Number:</span>
+                  <span className="font-medium text-red-800 font-mono">{receiptNumber}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Parihara Service:</span>
+                  <span className="font-medium text-red-800">{bookingDetails.pariharaName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status:</span>
+                  <span className="font-medium text-green-600 flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4" />
+                    Booked Successfully
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Booking Date:</span>
+                  <span className="font-medium">
+                    {new Date().toLocaleDateString('en-IN', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Parihara Details */}
-            <div className="bg-red-50 rounded-xl p-6 mb-8">
-              <h3 className="font-cinzel text-xl font-bold text-temple-maroon mb-4">Parihara Details</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Parihara Information */}
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <Heart className="w-4 h-4" />
-                    Parihara Information
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Parihara:</span>
-                      <span className="font-medium text-temple-maroon">{bookingDetails.pariharaName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Date:</span>
-                      <span className="font-medium">
-                        {bookingDetails.preferredDate ? new Date(bookingDetails.preferredDate).toLocaleDateString('en-IN') : 'To be scheduled'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Time:</span>
-                      <span className="font-medium">{bookingDetails.preferredTime || 'To be scheduled'}</span>
-                    </div>
+            {/* What's Next Section */}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 mb-8">
+              <h3 className="font-cinzel text-lg font-bold text-amber-800 mb-4 flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                What happens next?
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-amber-800 font-bold text-sm">1</span>
+                  </div>
+                  <div>
+                    <p className="text-gray-700 font-semibold mb-1">Horoscope Analysis</p>
+                    <p className="text-gray-600 text-sm">
+                      Our astrologer will analyze your horoscope to identify specific doshas
+                    </p>
                   </div>
                 </div>
-
-                {/* Devotee Information */}
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Devotee Information
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Name:</span>
-                      <span className="font-medium">{bookingDetails.userName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Phone:</span>
-                      <span className="font-medium">{bookingDetails.userPhone}</span>
-                    </div>
-                    {bookingDetails.nakshatra && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 flex items-center gap-1">
-                          <Star className="w-3 h-3" />
-                          Nakshatra:
-                        </span>
-                        <span className="font-medium">{bookingDetails.nakshatra}</span>
-                      </div>
-                    )}
-                    {bookingDetails.gotra && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Gotra:</span>
-                        <span className="font-medium">{bookingDetails.gotra}</span>
-                      </div>
-                    )}
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-amber-800 font-bold text-sm">2</span>
+                  </div>
+                  <div>
+                    <p className="text-gray-700 font-semibold mb-1">Contact Within 24 Hours</p>
+                    <p className="text-gray-600 text-sm">
+                      Our team will contact you to discuss the specific parihara rituals needed
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-amber-800 font-bold text-sm">3</span>
+                  </div>
+                  <div>
+                    <p className="text-gray-700 font-semibold mb-1">Payment & Scheduling</p>
+                    <p className="text-gray-600 text-sm">
+                      Finalize the parihara scope, pricing, and schedule the auspicious date and time
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-amber-800 font-bold text-sm">4</span>
+                  </div>
+                  <div>
+                    <p className="text-gray-700 font-semibold mb-1">Parihara Performance</p>
+                    <p className="text-gray-600 text-sm">
+                      Sacred rituals performed to remove obstacles and bring divine blessings
+                    </p>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Specific Issue */}
-              {bookingDetails.specificIssue && (
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <h4 className="font-semibold text-gray-700 mb-2">Specific Issue for Parihara:</h4>
-                  <p className="text-gray-600 italic">"{bookingDetails.specificIssue}"</p>
+            {/* Devotee Information */}
+            <div className="bg-blue-50 rounded-2xl p-6 mb-8">
+              <h3 className="font-cinzel text-lg font-bold text-blue-800 mb-3">Devotee Information</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Name:</span>
+                  <span className="font-medium text-blue-800">{bookingDetails.userName}</span>
                 </div>
-              )}
-
-              {/* Payment Information */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-gray-700">Amount Paid:</span>
-                  <div className="flex items-center gap-1 text-temple-maroon font-bold text-lg">
-                    <IndianRupee className="w-5 h-5" />
-                    <span>{bookingDetails.pariharaPrice?.toLocaleString('en-IN') || '0'}</span>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Phone:</span>
+                  <span className="font-medium text-blue-800">{bookingDetails.userPhone}</span>
+                </div>
+                {bookingDetails.nakshatra && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Nakshatra:</span>
+                    <span className="font-medium text-blue-800">{bookingDetails.nakshatra}</span>
                   </div>
-                </div>
+                )}
+                {bookingDetails.gotra && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Gotra:</span>
+                    <span className="font-medium text-blue-800">{bookingDetails.gotra}</span>
+                  </div>
+                )}
+                {bookingDetails.specificIssue && (
+                  <div className="mt-3 pt-3 border-t border-blue-200">
+                    <p className="text-sm text-gray-600 mb-2">Specific Issue:</p>
+                    <p className="text-gray-700 italic">"{bookingDetails.specificIssue}"</p>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Temple Location Section */}
-            <div className="bg-temple-cream/30 rounded-xl p-6 mb-8">
-              <h3 className="font-cinzel text-lg font-bold text-temple-maroon mb-4">
+            <div className="bg-gradient-to-r from-red-50 to-rose-50 rounded-2xl p-6 mb-8">
+              <h3 className="font-cinzel text-lg font-bold text-red-800 mb-4 flex items-center justify-center gap-2">
+                <MapPin className="w-5 h-5" />
                 Visit Our Temple
               </h3>
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-temple-maroon mt-0.5" />
-                  <div>
-                    <p className="font-medium text-gray-800">Guru Seva Mandali</p>
-                    <p className="text-sm text-gray-600">
-                      [Your Temple Address Here]<br />
-                      City, State - Pincode
-                    </p>
-                  </div>
+                <div className="text-center">
+                  <p className="font-medium text-gray-800">Sri Raghavendra Brindavana Sannidhi</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    #12, 1st Main Road, Girinagar, 1st Phase<br />
+                    Bengaluru, Karnataka - 560085
+                  </p>
                 </div>
 
-                <button
-                  onClick={handleGetDirections}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                >
-                  <MapPin className="w-4 h-4" />
-                  Get Directions on Google Maps
-                </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handleGetDirections}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    Get Directions
+                  </button>
+                  <button
+                    onClick={handleCallUs}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
+                  >
+                    <Phone className="w-4 h-4" />
+                    Call Us
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className="space-y-3 mb-8">
               <button
                 onClick={handleDownloadReceipt}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-temple-maroon to-red-700 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:from-blue-400 disabled:to-indigo-400 disabled:cursor-not-allowed"
               >
-                <Download className="w-5 h-5" />
-                Download Receipt (PDF)
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Download Receipt...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" />
+                    Download Receipt
+                  </>
+                )}
               </button>
 
               <button
                 onClick={handleShareWhatsApp}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all"
               >
                 <Share2 className="w-5 h-5" />
                 Share on WhatsApp
               </button>
 
               <Link href="/" className="block">
-                <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-temple-gold/20 text-temple-maroon rounded-xl font-semibold hover:bg-temple-gold/30 transition-all duration-300 border-2 border-temple-gold/30">
+                <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl font-semibold hover:from-red-700 hover:to-rose-700 transition-all transform hover:scale-[1.02] shadow-lg">
                   <Home className="w-5 h-5" />
                   Return to Home
                 </button>
               </Link>
             </div>
+
+            <p className="text-center text-xs text-gray-500">
+              Thank you for choosing our authentic Vedic parihara services
+            </p>
           </div>
         </div>
 
         {/* Additional Booking CTA */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 mb-3">Need another parihara pooja?</p>
+        <div className="mt-8 text-center">
+          <p className="text-gray-600 mb-4">Need another parihara pooja?</p>
           <Link href="/parihara-pooja">
-            <Button variant="outline" className="inline-flex items-center gap-2">
+            <Button variant="outline" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-red-200 hover:bg-red-50">
               <Heart className="w-4 h-4" />
               Book Another Parihara
             </Button>
@@ -311,9 +363,9 @@ function PariharaConfirmationContent() {
 export default function PariharaConfirmationPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-red-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-temple-maroon border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading confirmation...</p>
         </div>
       </div>

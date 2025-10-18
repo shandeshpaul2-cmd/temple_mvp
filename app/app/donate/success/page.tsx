@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { CheckCircle, Home, Download, Share2, Calendar, Gift, MapPin, Phone } from 'lucide-react'
 import { certificateService, CertificateData } from '@/lib/certificate-service'
 
 interface DonationDetails {
@@ -21,7 +22,7 @@ export default function DonationSuccessPage() {
   const [certificateLoading, setCertificateLoading] = useState(false)
   const [certificateError, setCertificateError] = useState<string | null>(null)
   const [certificateGenerated, setCertificateGenerated] = useState(false)
-  
+
   useEffect(() => {
     // Retrieve donation details from sessionStorage
     const storedDetails = sessionStorage.getItem('donationDetails')
@@ -39,7 +40,7 @@ export default function DonationSuccessPage() {
     }
   }, [router])
 
-  
+
   const handleDonateAgain = () => {
     sessionStorage.removeItem('donationDetails')
     router.push('/donate')
@@ -81,9 +82,9 @@ export default function DonationSuccessPage() {
 
   if (!donationDetails) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-orange-50 to-amber-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading donation details...</p>
         </div>
       </div>
@@ -91,125 +92,204 @@ export default function DonationSuccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-amber-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          {/* Success Header */}
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold text-green-800 mb-2">
-              🙏 Donation Successful!
-            </h1>
-            <p className="text-gray-600">
-              Thank you for your generous contribution to Shri Raghavendra Swamy Brundavana Sannidhi
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 flex items-center justify-center py-8 px-4">
+      <div className="max-w-xl w-full">
+        {/* Success Card */}
+        <div className="bg-white rounded-3xl shadow-xl border-2 border-red-100 overflow-hidden">
+          {/* Top Accent Bar */}
+          <div className="h-2 bg-gradient-to-r from-red-600 via-rose-600 to-red-600"></div>
 
-          {/* Donation Details */}
-          <div className="bg-orange-50 rounded-lg p-6 mb-6">
-            <h2 className="text-lg font-semibold text-orange-800 mb-4">Donation Details</h2>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Receipt Number:</span>
-                <span className="font-medium">{donationDetails.receiptNumber}</span>
+          <div className="p-8">
+            {/* Success Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-12 h-12 text-green-600" />
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Donor Name:</span>
-                <span className="font-medium">{donationDetails.donorName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Phone Number:</span>
-                <span className="font-medium">{donationDetails.donorPhone}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Donation Type:</span>
-                <span className="font-medium">{donationDetails.donationType}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Purpose:</span>
-                <span className="font-medium">{donationDetails.donationPurpose}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Date:</span>
-                <span className="font-medium">{new Date(donationDetails.date).toLocaleDateString('en-IN')}</span>
-              </div>
-              <div className="border-t pt-2 mt-2">
+            </div>
+
+            {/* Success Message */}
+            <div className="text-center mb-8">
+              <h1 className="font-cinzel text-3xl font-bold text-red-800 mb-3">
+                Donation Successful
+              </h1>
+              <p className="text-gray-600 text-lg mb-2">
+                Thank you for your generous contribution
+              </p>
+              <p className="text-sm text-gray-500">
+                Your support helps us continue our spiritual services
+              </p>
+            </div>
+
+            {/* Decorative Divider */}
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <div className="h-px w-16 bg-gradient-to-r from-transparent to-red-400"></div>
+              <div className="text-2xl text-red-400">✦</div>
+              <div className="h-px w-16 bg-gradient-to-l from-transparent to-red-400"></div>
+            </div>
+
+            {/* Donation Details */}
+            <div className="bg-red-50 rounded-2xl p-6 mb-8">
+              <h3 className="font-cinzel text-xl font-bold text-red-800 mb-4 flex items-center gap-2">
+                <Gift className="w-5 h-5" />
+                Donation Details
+              </h3>
+              <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-lg font-semibold text-gray-800">Amount Paid:</span>
-                  <span className="text-lg font-bold text-green-600">
-                    ₹{donationDetails.amount.toLocaleString('en-IN')}
+                  <span className="text-gray-600">Receipt Number:</span>
+                  <span className="font-medium text-red-800 font-mono">{donationDetails.receiptNumber}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Donor Name:</span>
+                  <span className="font-medium text-red-800">{donationDetails.donorName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Phone Number:</span>
+                  <span className="font-medium text-red-800">{donationDetails.donorPhone}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Donation Type:</span>
+                  <span className="font-medium text-red-800">{donationDetails.donationType}</span>
+                </div>
+                {donationDetails.donationPurpose && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Purpose:</span>
+                    <span className="font-medium text-red-800">{donationDetails.donationPurpose}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Date:</span>
+                  <span className="font-medium text-red-800">
+                    {new Date(donationDetails.date).toLocaleDateString('en-IN', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
                   </span>
+                </div>
+                <div className="border-t border-red-200 pt-3 mt-3">
+                  <div className="flex justify-between">
+                    <span className="text-lg font-bold text-gray-800">Amount Paid:</span>
+                    <span className="text-xl font-bold text-green-600">
+                      ₹{donationDetails.amount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Certificate Section */}
-          <div className="bg-blue-50 rounded-lg p-6 mb-6">
-            <h3 className="text-lg font-semibold text-blue-800 mb-4">📜 Download Your Certificate</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Generate an official donation certificate for your records. This certificate includes your donation details and is valid for tax purposes under Section 80G.
-            </p>
+            {/* Certificate Section */}
+            <div className="bg-blue-50 rounded-2xl p-6 mb-8">
+              <h3 className="font-cinzel text-lg font-bold text-blue-800 mb-4 flex items-center gap-2">
+                <Download className="w-5 h-5" />
+                Download Certificate
+              </h3>
+              <div className="space-y-3">
+                <p className="text-sm text-gray-600">
+                  Generate an official donation certificate for your records. This certificate is valid for tax purposes under Section 80G.
+                </p>
 
-            {certificateError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-                <p className="text-sm">{certificateError}</p>
+                {certificateError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                    <p className="text-sm">{certificateError}</p>
+                  </div>
+                )}
+
+                {certificateGenerated && (
+                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
+                    <p className="text-sm flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Certificate generated successfully! Check your downloads folder.
+                    </p>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleGenerateCertificate}
+                  disabled={certificateLoading}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:from-blue-400 disabled:to-indigo-400 disabled:cursor-not-allowed"
+                >
+                  {certificateLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Generating Certificate...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-5 h-5" />
+                      Download Certificate
+                    </>
+                  )}
+                </button>
               </div>
-            )}
+            </div>
 
-            {certificateGenerated && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
-                <p className="text-sm">✅ Certificate generated successfully! Check your downloads folder.</p>
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <button
+                onClick={handleDonateAgain}
+                className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl font-semibold hover:from-red-700 hover:to-rose-700 transition-all"
+              >
+                <Gift className="w-5 h-5" />
+                Donate Again
+              </button>
+              <button
+                onClick={() => window.location.href = '/'}
+                className="flex items-center justify-center gap-2 px-6 py-4 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition-colors"
+              >
+                <Home className="w-5 h-5" />
+                Go Home
+              </button>
+            </div>
+
+            {/* Temple Location Section */}
+            <div className="bg-gradient-to-r from-red-50 to-rose-50 rounded-2xl p-6 mb-8">
+              <h3 className="font-cinzel text-lg font-bold text-red-800 mb-4 flex items-center justify-center gap-2">
+                <MapPin className="w-5 h-5" />
+                Visit Our Temple
+              </h3>
+              <div className="space-y-4">
+                <div className="text-center">
+                  <p className="font-medium text-gray-800">Sri Raghavendra Brindavana Sannidhi</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    #12, 1st Main Road, Girinagar, 1st Phase<br />
+                    Bengaluru, Karnataka - 560085
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      const templeAddress = "Sri Raghavendra Brindavana Sannidhi, #12, 1st Main Road, Girinagar, 1st Phase, Bengaluru, Karnataka - 560085"
+                      const encodedAddress = encodeURIComponent(templeAddress)
+                      window.open(`https://maps.google.com/?q=${encodedAddress}`, '_blank')
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    Get Directions
+                  </button>
+                  <button
+                    onClick={() => window.open('tel:+917760118171', '_blank')}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
+                  >
+                    <Phone className="w-4 h-4" />
+                    Call Us
+                  </button>
+                </div>
               </div>
-            )}
+            </div>
 
-            <button
-              onClick={handleGenerateCertificate}
-              disabled={certificateLoading}
-              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center justify-center"
-            >
-              {certificateLoading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Generating Certificate...
-                </>
-              ) : (
-                <>
-                  📄 Download Certificate
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-4">
-            <button
-              onClick={handleDonateAgain}
-              className="flex-1 bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
-            >
-              🙏 Donate Again
-            </button>
-            <button
-              onClick={() => window.location.href = '/'}
-              className="flex-1 bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
-            >
-              🏠 Go Home
-            </button>
-          </div>
-
-          {/* WhatsApp Info */}
-          <div className="mt-6 p-4 bg-green-50 rounded-lg">
-            <h3 className="font-semibold text-green-800 mb-2">📱 WhatsApp Notification</h3>
-            <p className="text-sm text-gray-600">
-              You will receive a confirmation message with your receipt details on WhatsApp shortly.
-            </p>
+            {/* WhatsApp Info */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6">
+              <h3 className="font-cinzel text-lg font-bold text-green-800 mb-3 flex items-center gap-2">
+                <Share2 className="w-5 h-5" />
+                WhatsApp Confirmation
+              </h3>
+              <p className="text-sm text-gray-600">
+                You will receive a confirmation message with your receipt details on WhatsApp shortly.
+              </p>
+            </div>
           </div>
         </div>
       </div>

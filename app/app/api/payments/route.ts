@@ -60,38 +60,36 @@ export async function POST(request: NextRequest) {
       user = await prisma.user.upsert({
         where: { phone: userInfo.phoneNumber },
         update: {
-          name: userInfo.fullName,
-          // Only update email if it's provided and doesn't conflict
-          ...(userInfo.emailAddress && { email: userInfo.emailAddress })
+          name: userInfo.fullName
         },
         create: {
           name: userInfo.fullName,
           phone: userInfo.phoneNumber,
-          email: userInfo.emailAddress || null
+          email: null // No email required anymore
         }
       })
     } catch (error: any) {
-      // Handle unique constraint violation on email
-      if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
-        console.log('Email already exists, using phone number only for user lookup')
-        // Try to find user by phone number only
-        user = await prisma.user.findUnique({
-          where: { phone: userInfo.phoneNumber }
-        })
+      console.error('Error creating user:', error)
+      // Try to find user by phone number only
+      user = await prisma.user.findUnique({
+        where: { phone: userInfo.phoneNumber }
+      })
 
-        // If still not found, create without email
-        if (!user) {
-          user = await prisma.user.create({
-            data: {
-              name: userInfo.fullName,
-              phone: userInfo.phoneNumber,
-              email: null // Don't set email to avoid conflict
-            }
-          })
-        }
-      } else {
-        throw error; // Re-throw other errors
+      // If still not found, create without email
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            name: userInfo.fullName,
+            phone: userInfo.phoneNumber,
+            email: null // No email required
+          }
+        })
       }
+    }
+
+    // Ensure user was created successfully
+    if (!user) {
+      throw new Error('Failed to create or find user')
     }
 
     let responseData = {}
@@ -112,11 +110,11 @@ export async function POST(request: NextRequest) {
             preferredTime: 'To be scheduled based on horoscope',
             userName: userInfo.fullName,
             userPhone: userInfo.phoneNumber,
-            userEmail: userInfo.emailAddress || null,
+            userEmail: null, // No email required anymore
             nakshatra: null,
             gothra: null,
             specialInstructions: 'Parihara pooja - requires horoscope analysis',
-            userId: user.id,
+            userId: user?.id || null, // Optional user reference
             bookingStatus: 'PENDING',
             paymentStatus: 'SUCCESS',
             razorpayPaymentId: providedPaymentId || `pay_${timestamp}`,
@@ -177,7 +175,7 @@ export async function POST(request: NextRequest) {
             pariharaBooking.poojaName,
             pariharaBooking.receiptNumber,
             pariharaBooking.preferredDate?.toISOString() || new Date().toISOString(),
-            userInfo.emailAddress || 'Not provided',
+            'No email required',
             pariharaBooking.userPhone
           )
 
@@ -207,10 +205,32 @@ export async function POST(request: NextRequest) {
           "Vastra Arpane Seva": 11
         }
 
+        const serviceName = items[0]?.name || 'Nithya Pooja'
         let poojaId = 1
-        const serviceName = items[0]?.name
+
+        // Check if the pooja service exists, if not create it
         if (poojaServiceMap[serviceName]) {
           poojaId = poojaServiceMap[serviceName]
+
+          // Check if the pooja service exists in database
+          const existingPoojaService = await prisma.poojaService.findUnique({
+            where: { id: poojaId }
+          })
+
+          if (!existingPoojaService) {
+            // Create the pooja service if it doesn't exist
+            await prisma.poojaService.create({
+              data: {
+                id: poojaId,
+                poojaName: serviceName,
+                price: amount,
+                durationMinutes: 60,
+                isActive: true,
+                displayOrder: poojaId,
+              }
+            })
+            console.log(`Created pooja service: ${serviceName} with ID: ${poojaId}`)
+          }
         }
 
         const poojaBooking = await prisma.poojaBooking.create({
@@ -224,11 +244,11 @@ export async function POST(request: NextRequest) {
             preferredTime: serviceDetails?.preferredTime || 'To be scheduled',
             userName: userInfo.fullName,
             userPhone: userInfo.phoneNumber,
-            userEmail: userInfo.emailAddress || null,
+            userEmail: null, // No email required anymore
             nakshatra: serviceDetails?.nakshatra || null,
             gothra: serviceDetails?.gotra || null,
             specialInstructions: null,
-            userId: user.id,
+            userId: user?.id || null, // Optional user reference
             bookingStatus: 'PENDING',
             paymentStatus: 'SUCCESS',
             razorpayPaymentId: providedPaymentId || `pay_${timestamp}`,
@@ -251,10 +271,15 @@ export async function POST(request: NextRequest) {
           await whatsappService.sendPoojaBookingConfirmationToDevotee({
             receiptNumber: poojaBooking.receiptNumber,
             devoteeName: poojaBooking.userName,
-            phone: poojaBooking.userPhone,
+            devoteePhone: poojaBooking.userPhone,
             poojaName: poojaBooking.poojaName,
-            poojaDate: poojaBooking.poojaDate,
-            amount: poojaBooking.poojaPrice
+            preferredDate: poojaBooking.preferredDate?.toLocaleDateString('en-IN'),
+            preferredTime: poojaBooking.preferredTime,
+            nakshatra: poojaBooking.nakshatra,
+            gotra: poojaBooking.gotra,
+            amount: poojaBooking.poojaPrice,
+            date: poojaBooking.createdAt.toISOString(),
+            paymentId: poojaBooking.razorpayPaymentId || `pay_${timestamp}`
           })
           console.log('Pooja booking WhatsApp notifications sent')
         } catch (error) {
@@ -288,7 +313,7 @@ export async function POST(request: NextRequest) {
             poojaBooking.poojaName,
             poojaBooking.receiptNumber,
             poojaBooking.preferredDate?.toISOString() || new Date().toISOString(),
-            userInfo.emailAddress || 'Not provided',
+            'No email required',
             poojaBooking.userPhone
           )
 
@@ -376,7 +401,7 @@ export async function POST(request: NextRequest) {
             items[0]?.name || 'General Astrology Consultation',
             consultationNumber,
             serviceDetails?.preferredDate || new Date().toISOString(),
-            userInfo.emailAddress || 'Not provided',
+            'No email required',
             userInfo.phoneNumber,
             serviceDetails?.birthDetails
           )
@@ -397,7 +422,7 @@ export async function POST(request: NextRequest) {
         const donation = await prisma.donation.create({
           data: {
             receiptNumber: receiptNumber,
-            userId: user.id,
+            userId: user?.id || null, // Optional user reference
             amount: amount,
             donationType: items[0]?.name || 'General Donation',
             donationPurpose: items[0]?.description || 'General Purpose',
@@ -471,8 +496,34 @@ export async function POST(request: NextRequest) {
           // Send WhatsApp notifications
           const [adminNotified, donorNotified] = await Promise.all([
             whatsappService.sendDonationNotificationToAdmin(donationDetails),
-            whatsappService.sendDonationReceiptToDonor(donationDetails, certificateUrl, true) // true = also send to admin
+            whatsappService.sendDonationReceiptToDonor(donationDetails, undefined, true) // true = also send to admin, but no attachment
           ])
+
+          // Send separate message with certificate link
+          if (certificateUrl) {
+            const certificateMessage = `📎 *Your 80G Donation Certificate is ready!*
+
+Dear ${donationDetails.donorName},
+
+🙏 Thank you for your generous donation of ₹${donationDetails.amount.toLocaleString('en-IN')} to Shri Raghavendra Swamy Brundavana Sannidhi!
+
+📎 *80G Certificate:* Download your tax exemption certificate:
+🔗 http://106.51.129.224:3011/certificate/${donationDetails.receiptNumber}
+
+🧾 *Receipt Details:*
+• Receipt Number: ${donationDetails.receiptNumber}
+• Date: ${new Date().toLocaleDateString('en-IN')}
+
+🙏 *May Sri Raghavendra Swamy bless you and your family!*
+
+For any queries, please contact: +918310408797
+
+---
+*Shri Raghavendra Swamy Brundavana Sannidhi*
+*Service to Humanity is Service to God*`
+
+            await whatsappService.sendCustomMessage(['7760118171'], certificateMessage)
+          }
 
           if (adminNotified && donorNotified) {
             console.log('✅ Donation WhatsApp notifications sent successfully with certificate')
@@ -508,7 +559,7 @@ export async function POST(request: NextRequest) {
               donation.amount,
               donation.receiptNumber,
               donation.donationType,
-              userInfo.emailAddress || 'Not provided',
+              'No email required',
               userInfo.phoneNumber,
               '' // gotra not available in donation data
             )

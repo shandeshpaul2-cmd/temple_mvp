@@ -3,19 +3,19 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, User, Phone, Calendar, MapPin, Clock, Star } from 'lucide-react'
+import { ArrowLeft, User, Phone, Calendar, MapPin, Clock, Star, Sparkles, Heart } from 'lucide-react'
 import { useLanguage } from '@/shared/contexts/contexts/LanguageContext'
 import { Input, Button } from '@/shared/components/ui'
 
 interface FormData {
   fullName: string
   phoneNumber: string
-  emailAddress: string
   dateOfBirth: string
   timeOfBirth: string
   timePeriod: 'AM' | 'PM'
   placeOfBirth: string
 }
+
 
 export default function AstrologyConsultationPage() {
   const { t } = useLanguage()
@@ -24,7 +24,6 @@ export default function AstrologyConsultationPage() {
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     phoneNumber: '',
-    emailAddress: '',
     dateOfBirth: '',
     timeOfBirth: '',
     timePeriod: 'AM',
@@ -96,12 +95,6 @@ export default function AstrologyConsultationPage() {
       newErrors.phoneNumber = 'Please enter a valid 10-digit phone number'
     }
 
-    if (!formData.emailAddress.trim()) {
-      newErrors.emailAddress = 'Email address is required'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailAddress)) {
-      newErrors.emailAddress = 'Please enter a valid email address'
-    }
-
     if (!formData.dateOfBirth) {
       newErrors.dateOfBirth = 'Date of birth is required'
     } else {
@@ -134,36 +127,12 @@ export default function AstrologyConsultationPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const [selectedConsultation, setSelectedConsultation] = useState<string>('')
-  const [amount, setAmount] = useState<string>('')
-
-  const consultationOptions = [
-    { name: 'General Horoscope Analysis', price: 1500 },
-    { name: 'Career & Business Guidance', price: 2100 },
-    { name: 'Marriage & Relationship Counseling', price: 2100 },
-    { name: 'Health Astrology', price: 1600 },
-    { name: 'Childbirth & Progeny Analysis', price: 1800 },
-    { name: 'Vastu Consultation', price: 3100 },
-    { name: 'Muhurta (Auspicious Time)', price: 1100 },
-    { name: 'Yearly Predictions', price: 2600 }
-  ]
-
-  const handleConsultationSelect = (consultation: { name: string; price: number }) => {
-    setSelectedConsultation(consultation.name)
-    setAmount(consultation.price.toString())
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Astrology consultation form submitted:', formData)
 
     if (!validateForm()) {
       console.log('Form validation failed:', errors)
-      return
-    }
-
-    if (!selectedConsultation || !amount) {
-      alert('Please select a consultation type')
       return
     }
 
@@ -181,15 +150,13 @@ export default function AstrologyConsultationPage() {
         },
         body: JSON.stringify({
           paymentType: 'astrology_consultation',
-          amount: parseInt(amount),
           userInfo: {
             fullName: formData.fullName,
             phoneNumber: formData.phoneNumber,
-            emailAddress: formData.emailAddress
-          },
+            },
           items: [{
-            name: selectedConsultation,
-            description: selectedConsultation
+            name: 'Vedic Astrology Consultation',
+            description: 'Comprehensive birth chart analysis and personal guidance'
           }],
           serviceDetails: {
             preferredDate: new Date().toISOString(),
@@ -220,50 +187,14 @@ export default function AstrologyConsultationPage() {
     }
   }
 
-  const sendWhatsAppToAdmin = (data: FormData) => {
-    // Admin WhatsApp number (you should configure this)
-    const adminPhoneNumber = '+917760118171' // Admin number
-
-    // Format the consultation details message
-    const message = `🔮 *New Astrology Consultation Request* 🔮
-
-📝 *Client Details:*
-• Name: ${data.fullName}
-• Phone: ${data.phoneNumber}
-• Email: ${data.emailAddress}
-• Date of Birth: ${new Date(data.dateOfBirth).toLocaleDateString('en-IN')}
-• Time of Birth: ${data.timeOfBirth} ${data.timePeriod}
-• Birth Location: ${data.placeOfBirth}
-
-📅 *Request Date:* ${new Date().toLocaleDateString('en-IN')}
-⏰ *Request Time:* ${new Date().toLocaleTimeString('en-IN')}
-
-🙏 *Please contact the client within 24 hours to discuss consultation requirements and pricing.*
-
----
-*Guru Seva Mandali - Astrology Services*`
-
-    // Encode the message for URL
-    const encodedMessage = encodeURIComponent(message)
-
-    // Create WhatsApp URL
-    const whatsappUrl = `https://wa.me/${adminPhoneNumber.replace(/[^\d]/g, '')}?text=${encodedMessage}`
-
-    // Open WhatsApp in a new tab
-    window.open(whatsappUrl, '_blank')
-  }
-
-  
-  
-  // Show astrology consultation form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl py-8">
         {/* Header */}
         <div className="mb-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-temple-maroon hover:text-temple-gold transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 transition-colors mb-4"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back to Home</span>
@@ -272,7 +203,7 @@ export default function AstrologyConsultationPage() {
           <div className="text-center">
             {/* Sri Raghavendra Swamy Logo */}
             <div className="mb-4">
-              <div className="w-32 h-32 mx-auto overflow-hidden rounded-full drop-shadow-lg">
+              <div className="w-32 h-32 mx-auto overflow-hidden rounded-full drop-shadow-lg border-4 border-purple-200">
                 <img
                   src="/sri-raghavendra-logo.png"
                   alt="Sri Raghavendra Swamy"
@@ -282,95 +213,88 @@ export default function AstrologyConsultationPage() {
               </div>
             </div>
 
-            <h1 className="font-cinzel text-3xl sm:text-4xl font-bold text-temple-maroon mb-2">
-              Astrology Consultation
+            <h1 className="font-cinzel text-4xl font-bold text-purple-800 mb-3">
+              Vedic Astrology Consultation
             </h1>
-            <p className="text-gray-600 text-sm sm:text-base">
-              Discover divine guidance through your birth chart analysis
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Discover divine guidance through ancient Vedic wisdom and comprehensive birth chart analysis
             </p>
 
             {/* Decorative Divider */}
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <div className="h-px w-12 bg-gradient-to-r from-transparent to-temple-gold"></div>
-              <div className="text-xl text-temple-gold">✦</div>
-              <div className="h-px w-12 bg-gradient-to-l from-transparent to-temple-gold"></div>
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <div className="h-px w-20 bg-gradient-to-r from-transparent to-purple-400"></div>
+              <div className="text-2xl text-purple-400">✦</div>
+              <div className="h-px w-20 bg-gradient-to-l from-transparent to-purple-400"></div>
             </div>
           </div>
         </div>
 
-        {/* Consultation Selection */}
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-temple-gold/20 p-4 mb-6">
-          <h2 className="font-cinzel text-xl font-bold text-temple-maroon mb-3 text-center">
-            Select Consultation Type
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
-            {consultationOptions.map((consultation) => (
-              <div
-                key={consultation.name}
-                onClick={() => handleConsultationSelect(consultation)}
-                className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                  selectedConsultation === consultation.name
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-800">{consultation.name}</span>
-                  <span className="text-purple-600 font-semibold text-sm">₹{consultation.price.toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-            ))}
+        {/* Service Benefits */}
+        <div className="bg-white rounded-3xl shadow-xl border border-purple-100 p-8 mb-8">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center gap-2 bg-purple-100 px-4 py-2 rounded-full mb-3">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              <span className="text-purple-700 font-semibold">What You'll Receive</span>
+            </div>
+            <h2 className="font-cinzel text-2xl font-bold text-purple-800 mb-2">
+              Complete Life Guidance Package
+            </h2>
+            <p className="text-gray-600">All-inclusive consultation covering all aspects of your life</p>
           </div>
-        </div>
 
-        {/* Information Section */}
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-temple-gold/20 p-4 mb-6">
-          <h2 className="font-cinzel text-xl font-bold text-temple-maroon mb-3 text-center">
-            What You'll Receive
-          </h2>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="text-center">
-              <div className="w-10 h-10 bg-temple-gold/20 rounded-full flex items-center justify-center mx-auto mb-1">
-                <Star className="w-5 h-5 text-temple-maroon" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <Star className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-semibold text-temple-maroon mb-1 text-xs">Birth Chart Analysis</h3>
-              <p className="text-xs text-gray-600">Complete horoscope analysis</p>
+              <h3 className="font-bold text-purple-800 mb-2">Birth Chart Analysis</h3>
+              <p className="text-sm text-gray-600">Complete horoscope with planetary positions</p>
             </div>
-            <div className="text-center">
-              <div className="w-10 h-10 bg-temple-gold/20 rounded-full flex items-center justify-center mx-auto mb-1">
-                <User className="w-5 h-5 text-temple-maroon" />
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <User className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-semibold text-temple-maroon mb-1 text-xs">Personal Guidance</h3>
-              <p className="text-xs text-gray-600">Tailored astrological advice</p>
+              <h3 className="font-bold text-purple-800 mb-2">Personal Guidance</h3>
+              <p className="text-sm text-gray-600">Tailored advice for your life journey</p>
             </div>
-            <div className="text-center">
-              <div className="w-10 h-10 bg-temple-gold/20 rounded-full flex items-center justify-center mx-auto mb-1">
-                <Calendar className="w-5 h-5 text-temple-maroon" />
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <Calendar className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-semibold text-temple-maroon mb-1 text-xs">Future Predictions</h3>
-              <p className="text-xs text-gray-600">Insights into your future</p>
+              <h3 className="font-bold text-purple-800 mb-2">Future Predictions</h3>
+              <p className="text-sm text-gray-600">Insights into opportunities and challenges</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <Heart className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="font-bold text-purple-800 mb-2">Remedies & Solutions</h3>
+              <p className="text-sm text-gray-600">Parihara poojas for planetary doshas</p>
             </div>
           </div>
         </div>
 
+  
         {/* Form Card */}
-        <div className="bg-white rounded-3xl shadow-2xl border-2 border-temple-gold/20 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-2xl border border-purple-100 overflow-hidden">
           {/* Top Accent Bar */}
-          <div className="h-2 bg-gradient-to-r from-temple-maroon via-temple-gold to-temple-maroon"></div>
+          <div className="h-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600"></div>
 
-          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="p-8 space-y-8">
             {/* Personal Information Section */}
             <div>
-              <h2 className="font-cinzel text-xl sm:text-2xl font-bold text-temple-maroon mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 sm:w-6 sm:h-6" />
+              <h2 className="font-cinzel text-2xl font-bold text-purple-800 mb-6 flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <User className="w-6 h-6 text-purple-600" />
+                </div>
                 Personal Information
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <Input
                   label="Full Name"
                   name="fullName"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your full name as per official records"
                   value={formData.fullName}
                   onChange={handleInputChange}
                   error={errors.fullName}
@@ -389,32 +313,22 @@ export default function AstrologyConsultationPage() {
                   required
                   leftIcon={<Phone className="w-5 h-5 text-gray-400" />}
                 />
-
-                <Input
-                  label="Email Address"
-                  name="emailAddress"
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={formData.emailAddress}
-                  onChange={handleInputChange}
-                  error={errors.emailAddress}
-                  required
-                  leftIcon={<User className="w-5 h-5 text-gray-400" />}
-                />
               </div>
             </div>
 
             {/* Birth Details Section */}
-            <div className="border-t border-gray-200 pt-6">
-              <h2 className="font-cinzel text-xl sm:text-2xl font-bold text-temple-maroon mb-4 flex items-center gap-2">
-                <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="border-t border-gray-200 pt-8">
+              <h2 className="font-cinzel text-2xl font-bold text-purple-800 mb-6 flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-purple-600" />
+                </div>
                 Birth Details
               </h2>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-3">
                       Date of Birth <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -423,41 +337,41 @@ export default function AstrologyConsultationPage() {
                       value={formData.dateOfBirth}
                       onChange={handleInputChange}
                       max={new Date().toISOString().split('T')[0]}
-                      className={`w-full px-4 py-3 rounded-xl border-2 ${
+                      className={`w-full px-5 py-4 rounded-xl border-2 text-lg ${
                         errors.dateOfBirth
                           ? 'border-red-300 focus:border-red-500'
-                          : 'border-gray-200 focus:border-temple-gold'
+                          : 'border-gray-200 focus:border-purple-500'
                       } focus:outline-none transition-colors`}
                     />
                     {errors.dateOfBirth && (
-                      <p className="mt-1 text-sm text-red-500">{errors.dateOfBirth}</p>
+                      <p className="mt-2 text-sm text-red-500">{errors.dateOfBirth}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-3">
                       Time of Birth <span className="text-red-500">*</span>
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                       <input
                         type="text"
                         name="timeOfBirth"
                         placeholder="9:30"
                         value={formData.timeOfBirth}
                         onChange={handleTimeInputChange}
-                        className={`flex-1 px-4 py-3 rounded-xl border-2 ${
+                        className={`flex-1 px-5 py-4 rounded-xl border-2 text-lg ${
                           errors.timeOfBirth
                             ? 'border-red-300 focus:border-red-500'
-                            : 'border-gray-200 focus:border-temple-gold'
+                            : 'border-gray-200 focus:border-purple-500'
                         } focus:outline-none transition-colors`}
                       />
                       <select
                         value={formData.timePeriod}
                         onChange={(e) => handleSelectChange('timePeriod', e.target.value)}
-                        className={`px-4 py-3 rounded-xl border-2 ${
+                        className={`px-5 py-4 rounded-xl border-2 text-lg font-semibold ${
                           errors.timeOfBirth
                             ? 'border-red-300 focus:border-red-500'
-                            : 'border-gray-200 focus:border-temple-gold'
+                            : 'border-gray-200 focus:border-purple-500'
                         } focus:outline-none transition-colors bg-white`}
                       >
                         <option value="AM">AM</option>
@@ -465,16 +379,16 @@ export default function AstrologyConsultationPage() {
                       </select>
                     </div>
                     {errors.timeOfBirth && (
-                      <p className="mt-1 text-sm text-red-500">{errors.timeOfBirth}</p>
+                      <p className="mt-2 text-sm text-red-500">{errors.timeOfBirth}</p>
                     )}
-                    <p className="mt-1 text-xs text-gray-500">Just type numbers, colon added automatically (e.g., 930 → 9:30)</p>
+                    <p className="mt-2 text-sm text-gray-500">💡 Just type numbers, colon added automatically (e.g., 930 → 9:30)</p>
                   </div>
                 </div>
 
                 <Input
-                  label="Location"
+                  label="Birth Location"
                   name="placeOfBirth"
-                  placeholder="City where you were born"
+                  placeholder="City/Hospital where you were born"
                   value={formData.placeOfBirth}
                   onChange={handleInputChange}
                   error={errors.placeOfBirth}
@@ -484,49 +398,74 @@ export default function AstrologyConsultationPage() {
               </div>
             </div>
 
-            {/* Information Box */}
-            <div className="bg-temple-cream/30 rounded-xl p-4 border border-temple-gold/20">
-              <p className="text-sm text-gray-700 leading-relaxed">
-                🔮 <span className="font-semibold">Consultation Process:</span>
-                Our expert astrologer will review your birth details and contact you within 24 hours to schedule your consultation session. You'll receive instant confirmation with receipt details via email and WhatsApp.
-              </p>
-            </div>
-
-            {/* Payment Summary */}
-            {selectedConsultation && amount && (
-              <div className="mt-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-lg font-semibold text-purple-800">Selected Consultation:</span>
-                  <span className="text-lg font-bold text-purple-600">
-                    {selectedConsultation} - ₹{parseInt(amount).toLocaleString('en-IN')}
-                  </span>
+            {/* Payment Information */}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-amber-200 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                  <Star className="w-6 h-6 text-amber-700" />
                 </div>
-                <div className="text-sm text-purple-700">
-                  You will receive a confirmation email with receipt details immediately after booking.
+                <div>
+                  <h3 className="font-bold text-amber-800 mb-3 text-lg">Payment Process</h3>
+                  <div className="space-y-3 text-gray-700">
+                    <div className="bg-amber-100 rounded-xl p-4 border border-amber-300">
+                      <p className="font-semibold text-amber-900 mb-2">Important Note:</p>
+                      <p className="text-sm leading-relaxed">
+                        Our expert astrologer will first review your birth details and contact you within 24 hours to discuss your specific consultation requirements. Payment will be discussed and processed after the consultation scope is finalized based on your needs.
+                      </p>
+                    </div>
+                    <div className="text-sm space-y-1">
+                      <p>• Initial consultation call to understand your requirements</p>
+                      <p>• Detailed analysis of your birth chart and concerns</p>
+                      <p>• Payment discussion based on consultation scope</p>
+                      <p>• Professional guidance tailored to your specific needs</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
+
+            {/* Process Information */}
+            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-purple-200 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                  <Sparkles className="w-6 h-6 text-purple-700" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-purple-800 mb-3 text-lg">Consultation Process</h3>
+                  <div className="space-y-2 text-gray-700">
+                    <p>Our expert Vedic astrologer will analyze your birth chart in detail</p>
+                    <p>You'll receive a call within 24 hours to schedule your consultation session</p>
+                    <p>Complete analysis covering career, marriage, health, and spiritual guidance</p>
+                    <p>Instant confirmation with receipt details sent via WhatsApp</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Submit Button */}
-            <div className="pt-4">
+            <div className="pt-6">
               <Button
                 type="submit"
-                className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500"
-                disabled={!selectedConsultation || !amount}
+                className="w-full py-5 text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all transform hover:scale-[1.02] shadow-lg"
               >
-                {selectedConsultation && amount
-                  ? `Book Consultation - ₹${parseInt(amount).toLocaleString('en-IN')}`
-                  : 'Select a consultation type to continue'
-                }
+                <div className="flex items-center justify-center gap-3">
+                  <Star className="w-6 h-6" />
+                  Book Astrology Consultation
+                  <Star className="w-6 h-6" />
+                </div>
               </Button>
 
-              <p className="text-center text-xs text-gray-500 mt-4">
-                ✨ Instant confirmation with receipt via email • Expert will contact you within 24 hours
-              </p>
+              <div className="text-center mt-6 space-y-2">
+                <p className="text-sm text-gray-600">
+                  ✨ Instant confirmation with receipt via WhatsApp • Expert calls within 24 hours
+                </p>
+                <p className="text-xs text-gray-500">
+                  🙏 Trusted by thousands for authentic Vedic astrology guidance
+                </p>
+              </div>
             </div>
           </form>
         </div>
-
       </div>
     </div>
   )
