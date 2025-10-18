@@ -339,7 +339,7 @@ class ProductionWhatsAppService {
   }
 
   /**
-   * Send donation receipt with certificate attachment (production version)
+   * Send donation receipt with certificate link (production version)
    */
   public async sendDonationReceipt(
     details: any,
@@ -389,13 +389,14 @@ For any queries, please contact: ${this.adminPhoneNumber}
 
       let certificateMessageId: string | undefined;
 
-      // Send certificate with attachment if provided
+      // Send certificate link message if provided
       if (certificateUrl) {
+        const certificateMessage = `📄 *Download Your Donation Certificate*\n\nDear ${details.donorName},\n\nThank you once again for your generous donation to ${this.templeName}.\n\nYou can download your official donation certificate using the secure link below:\n${certificateUrl}\n\nIf you have any trouble accessing the certificate, reply to this message and our team will assist you.\n\n🙏 May Sri Raghavendra Swamy bless you and your family!`;
+
         const certificateResult = await this.sendMessage({
           phoneNumber: recipient,
-          message: '📎 *Your Donation Certificate is attached!* 🙏\n\nPlease find your official donation certificate attached to this message. This certificate acknowledges your generous contribution and may be used for tax purposes.',
+          message: certificateMessage,
           type: 'donation',
-          mediaUrl: certificateUrl,
           priority: 'high',
           metadata: {
             receiptNumber: details.receiptNumber,
