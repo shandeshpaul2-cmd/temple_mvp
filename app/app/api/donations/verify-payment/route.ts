@@ -108,8 +108,10 @@ Dear ${donationDetails.userInfo?.fullName || donationDetails.donorName || 'Devot
 
 📞 *Devotee Contact:* ${donationDetails.userInfo?.phoneNumber || donationDetails.donorPhone}
 
-📎 *80G Certificate:* Download your tax exemption certificate:
-🔗 http://106.51.129.224:3011/certificate/${donationDetails.receiptNumber}
+📱 *Tap to Download Certificate:*
+👇 *One-Tap Link:* http://192.168.0.175:3010/certificate/${donationDetails.receiptNumber}
+
+📱 *Important:* Make sure your phone is connected to the same WiFi network as the computer for instant access!
 
 🙏 *May Sri Raghavendra Swamy bless you and your family!*
 

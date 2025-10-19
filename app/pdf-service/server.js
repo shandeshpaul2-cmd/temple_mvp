@@ -37,8 +37,8 @@ app.get('/api/certificate/:receiptNumber', (req, res) => {
     res.json({
       success: true,
       receiptNumber,
-      downloadUrl: `http://106.51.129.224:${PORT}/certificate/${receiptNumber}`,
-      viewUrl: `http://106.51.129.224:${PORT}/certificate/${receiptNumber}`,
+      downloadUrl: `http://192.168.0.175:${PORT}/certificate/${receiptNumber}`,
+      viewUrl: `http://192.168.0.175:${PORT}/certificate/${receiptNumber}`,
       available: true
     })
   } else {
@@ -69,7 +69,7 @@ if (!fs.existsSync(certificatesDir)) {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`📜 PDF Certificate Service running on http://0.0.0.0:${PORT}`)
-  console.log(`🔗 Certificate URL pattern: http://106.51.129.224:${PORT}/certificate/{receiptNumber}`)
+  console.log(`🔗 Certificate URL pattern: http://192.168.0.175:${PORT}/certificate/{receiptNumber}`)
   console.log(`📁 Serving certificates from: ${certificatesDir}`)
-  console.log(`✅ Health check: http://106.51.129.224:${PORT}/health`)
+  console.log(`✅ Health check: http://192.168.0.175:${PORT}/health`)
 })

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { whatsappService } from '@/lib/whatsapp'
 import { EmailService } from '@/lib/email-service'
 import { certificateService } from '@/lib/certificate-service'
+import { config } from '@/lib/network-config'
 
 export async function POST(request: NextRequest) {
   try {
@@ -501,26 +502,11 @@ export async function POST(request: NextRequest) {
 
           // Send separate message with certificate link
           if (certificateUrl) {
-            const certificateMessage = `📎 *Your 80G Donation Certificate is ready!*
-
-Dear ${donationDetails.donorName},
-
-🙏 Thank you for your generous donation of ₹${donationDetails.amount.toLocaleString('en-IN')} to Shri Raghavendra Swamy Brundavana Sannidhi!
-
-📎 *80G Certificate:* Download your tax exemption certificate:
-🔗 http://106.51.129.224:3011/certificate/${donationDetails.receiptNumber}
-
-🧾 *Receipt Details:*
-• Receipt Number: ${donationDetails.receiptNumber}
-• Date: ${new Date().toLocaleDateString('en-IN')}
-
-🙏 *May Sri Raghavendra Swamy bless you and your family!*
-
-For any queries, please contact: +918310408797
-
----
-*Shri Raghavendra Swamy Brundavana Sannidhi*
-*Service to Humanity is Service to God*`
+            const certificateMessage = config.generateCertificateWhatsAppMessage(
+              donationDetails.donorName,
+              donationDetails.amount,
+              donationDetails.receiptNumber
+            )
 
             await whatsappService.sendCustomMessage(['7760118171'], certificateMessage)
           }
