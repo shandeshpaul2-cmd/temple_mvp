@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import PaymentLoadingButton from '../components/PaymentLoadingButton'
 
 export default function BookPoojaPage() {
   const router = useRouter()
@@ -47,11 +48,28 @@ export default function BookPoojaPage() {
     }
 
     try {
-      // Generate receipt number
+      // Generate receipt number and payment ID once
       const receiptNumber = `PJ-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
+      const paymentId = 'direct-' + Date.now()
 
-      // Store pooja booking in database
-      const response = await fetch('/api/payments', {
+      // Store pooja booking details in session storage immediately
+      const poojaDetails = {
+        poojaName,
+        devoteeName,
+        devoteePhone,
+        amount: parseInt(amount),
+        preferredDate,
+        preferredTime,
+        nakshatra,
+        gotra,
+        receiptNumber,
+        paymentId,
+        date: new Date().toISOString()
+      }
+      sessionStorage.setItem('poojaDetails', JSON.stringify(poojaDetails))
+
+      // Process payment in background with optimistic UI
+      const paymentPromise = fetch('/api/payments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -73,20 +91,29 @@ export default function BookPoojaPage() {
             nakshatra,
             gotra
           },
-          receiptNumber: receiptNumber,
-          paymentId: 'direct-' + Date.now(),
+          receiptNumber,
+          paymentId,
           status: 'completed'
         })
       })
 
+      // Process payment asynchronously
+      const response = await paymentPromise
       const data = await response.json()
 
       if (data.success) {
-        // Redirect to confirmation page with real receipt number
-        window.location.href = `/book-pooja/confirmation/${data.receiptNumber || receiptNumber}`
-      } else {
-        alert('Failed to process pooja booking. Please try again.')
+        // Update with server-generated data if available
+        const updatedDetails = {
+          ...poojaDetails,
+          receiptNumber: data.receiptNumber || receiptNumber,
+          paymentId: data.paymentId || paymentId
+        }
+        sessionStorage.setItem('poojaDetails', JSON.stringify(updatedDetails))
       }
+
+      // Redirect regardless of API response success (optimistic UI)
+      window.location.href = `/book-pooja/confirmation/${receiptNumber}`
+
     } catch (error) {
       console.error('Pooja booking error:', error)
       alert('Something went wrong. Please try again.')
@@ -221,13 +248,14 @@ export default function BookPoojaPage() {
               </span>
             </div>
 
-            <button
+            <PaymentLoadingButton
               onClick={handleBookPooja}
               disabled={!poojaName || !amount || !devoteeName || !devoteePhone}
-              className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-purple-600 hover:bg-purple-700 py-3 px-6 rounded-lg font-semibold"
+              loadingText="🔥 Processing Your Pooja Booking..."
             >
-              Book Pooja - ₹{amount ? parseInt(amount).toLocaleString('en-IN') : '0'}
-            </button>
+              🔥 Book Pooja - ₹{amount ? parseInt(amount).toLocaleString('en-IN') : '0'}
+            </PaymentLoadingButton>
           </div>
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">

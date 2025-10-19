@@ -48,6 +48,7 @@ export interface AstrologyConsultationDetails {
     dateOfBirth: string
     timeOfBirth: string
     placeOfBirth: string
+    starSign?: string
   }
   concerns?: string[]
   date: string
@@ -320,7 +321,19 @@ ${details.donationPurpose ? `• Purpose: ${details.donationPurpose}` : ''}
 
 📞 *Contact*: ${details.donorPhone}
 
-${pdfUrl ? `📄 *Download Certificate*: ${pdfUrl}` : ''}
+${pdfUrl ? `📄 *Your Donation Certificate is Ready!* 📄
+
+🔗 *Certificate Download Link:*
+${pdfUrl}
+
+📱 *How to Download:*
+1️⃣ *Press and hold* on the link above
+2️⃣ *Select "Copy Link"* from the menu
+3️⃣ *Open your browser* (Chrome, Safari, etc.)
+4️⃣ *Paste the entire link* in the address bar
+5️⃣ *Press Enter* to download your certificate
+
+💡 *Important*: Please copy the *complete link* from start to finish for it to work properly!` : ''}
 
 ━━━━━━━━━━━━━━━━━━━━━
 
@@ -570,30 +583,53 @@ Our expert astrologers will contact you within 24 hours to:
     // Fixed phone number for all WhatsApp receipts
     const fixedRecipientPhone = '7760118171'
 
-    const message = `${this.templeName}
+    const message = `🔮 *${this.templeName} - Astrology Consultation Request Received* 🔮
 
-Dear ${details.clientName},
+━━━━━━━━━━━━━━━━━━━━━
 
-Your astrology consultation request has been received.
+Dear *${details.clientName}*,
 
-Booking Reference: ${details.receiptNumber}
+✅ *Your Vedic astrology consultation request has been successfully received!*
 
-Your Details:
-• Name: ${details.clientName}
-• Phone: ${details.clientPhone}
-• DOB: ${details.birthDetails?.dateOfBirth || 'Provided'}
+🧾 *Request Details*
+• Reference: ${details.receiptNumber}
+• Consultation Type: ${details.consultationType}
+• Request Date: ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+
+🌟 *Your Birth Information*
+• Date of Birth: ${details.birthDetails?.dateOfBirth || 'Provided'}
 • Time of Birth: ${details.birthDetails?.timeOfBirth || 'Provided'}
 • Birth Place: ${details.birthDetails?.placeOfBirth || 'Provided'}
+• Moon Sign (Rashi): ${details.birthDetails?.starSign || 'Calculating...'}
 
-What's Next:
-• Our astrologer will call you within 24 hours
-• We'll discuss your consultation requirements
-• Payment will be finalized after the discussion
-• Your personalized session will be scheduled
+📞 *Contact*: ${details.clientPhone}
 
-For queries: ${this.adminPhoneNumber}
+━━━━━━━━━━━━━━━━━━━━━
 
-Thank you for choosing our Vedic astrology services.`
+📞 *What Happens Next*
+Our expert Vedic astrologer will:
+• Call you within 24 hours to discuss your specific requirements
+• Analyze your detailed birth chart and planetary positions
+• Provide insights into career, marriage, health, and spiritual guidance
+• Discuss personalized remedies and solutions based on your horoscope
+• Schedule a comprehensive consultation session at your convenience
+
+💫 *Our Vedic astrology services include:*
+• Complete birth chart analysis (Janma Kundali)
+• Planetary position analysis and dasha predictions
+• Career and business guidance
+• Marriage compatibility and relationship advice
+• Health predictions and remedies
+• Spiritual guidance and parihara solutions
+
+💡 *Payment Process*
+Payment will be discussed and finalized after our astrologer understands your specific consultation requirements during the initial call.
+
+📞 *For any urgent queries*: ${this.adminPhoneNumber}
+📍 *Temple*: ${this.templeName}
+
+━━━━━━━━━━━━━━━━━━━━━
+*🙏 Divine Guidance Through Ancient Vedic Wisdom*`
 
     const recipients = [fixedRecipientPhone]
     if (sendToAdmin) {
@@ -614,37 +650,46 @@ Thank you for choosing our Vedic astrology services.`
   public async sendAstrologyConsultationNotificationToAdmin(
     details: AstrologyConsultationDetails
   ): Promise<boolean> {
-    const message = `${this.templeName} - New Astrology Consultation Request
+    const message = `🔮 *${this.templeName} - New Astrology Consultation Request* 🔮
 
-Client Details:
+━━━━━━━━━━━━━━━━━━━━━
+
+👤 *Client Information*
 • Name: ${details.clientName}
 • Phone: ${details.clientPhone}
 • Receipt: ${details.receiptNumber}
 
-Birth Details:
-• DOB: ${details.birthDetails?.dateOfBirth || 'Provided'}
-• Time: ${details.birthDetails?.timeOfBirth || 'Provided'}
-• Place: ${details.birthDetails?.placeOfBirth || 'Provided'}
+🌟 *Birth Details for Horoscope Analysis*
+• Date of Birth: ${details.birthDetails?.dateOfBirth || 'Provided'}
+• Time of Birth: ${details.birthDetails?.timeOfBirth || 'Provided'}
+• Birth Place: ${details.birthDetails?.placeOfBirth || 'Provided'}
+• Moon Sign (Rashi): ${details.birthDetails?.starSign || 'Calculating...'}
 
-${details.preferredDate ? `Preferred Date: ${details.preferredDate}` : ''}
-${details.preferredTime ? `Preferred Time: ${details.preferredTime}` : ''}
+📊 *Consultation Type*
+• Service: ${details.consultationType}
+${details.preferredDate ? `• Preferred Date: ${details.preferredDate}` : ''}
+${details.preferredTime ? `• Preferred Time: ${details.preferredTime}` : ''}
 
-Action Required:
+━━━━━━━━━━━━━━━━━━━━━
+
+📅 *Action Required*
 • Contact client within 24 hours
-• Discuss consultation requirements
-• Finalize scope and pricing
-• Schedule the session
+• Review birth chart & planetary positions
+• Discuss specific concerns and requirements
+• Finalize consultation scope and pricing
+• Schedule comprehensive Vedic astrology session
 
-Note: Payment will be processed after scope discussion.
+💡 *Note*: Payment discussion after initial consultation scope review
 
-Requested: ${new Date().toLocaleString('en-IN', {
+📅 *Request Received*: ${new Date().toLocaleString('en-IN', {
       weekday: 'short',
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    })}`
+    })}
+━━━━━━━━━━━━━━━━━━━━━`
 
     return await this.sendWhatsAppMessage(this.adminPhoneNumber, message)
   }

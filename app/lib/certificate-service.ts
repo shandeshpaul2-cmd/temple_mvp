@@ -34,7 +34,7 @@ class CertificateService {
 
   constructor(config: CertificateServiceConfig = {}) {
     this.baseUrl = config.baseUrl || '/api/certificates';
-    this.timeout = config.timeout || 30000; // 30 seconds default
+    this.timeout = config.timeout || 5000; // 5 seconds for faster response
   }
 
   /**
@@ -162,6 +162,16 @@ class CertificateService {
    */
   getDownloadUrl(filename: string): string {
     return `${this.baseUrl}/download/${encodeURIComponent(filename)}`;
+  }
+
+  /**
+   * Generate certificate asynchronously without blocking payment flow
+   */
+  async generateCertificateAsync(data: CertificateData): Promise<void> {
+    // Fire and forget - generate certificate in background
+    this.generateCertificate(data).catch(error => {
+      console.warn('Async certificate generation failed:', error);
+    });
   }
 
   /**

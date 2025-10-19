@@ -14,6 +14,7 @@ interface FormData {
   timeOfBirth: string
   timePeriod: 'AM' | 'PM'
   placeOfBirth: string
+  starSign: string
 }
 
 
@@ -28,6 +29,7 @@ export default function AstrologyConsultationPage() {
     timeOfBirth: '',
     timePeriod: 'AM',
     placeOfBirth: '',
+    starSign: '',
   })
 
   const [errors, setErrors] = useState<Partial<FormData>>({})
@@ -82,33 +84,88 @@ export default function AstrologyConsultationPage() {
     }
   }
 
+  // Function to calculate star sign based on date of birth
+  const getStarSign = (dateString: string): string => {
+    if (!dateString) return ''
+
+    const date = new Date(dateString)
+    const month = date.getMonth() + 1 // 1-12
+    const day = date.getDate()
+
+    if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return 'Aries ♈'
+    if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return 'Taurus ♉'
+    if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return 'Gemini ♊'
+    if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return 'Cancer ♋'
+    if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return 'Leo ♌'
+    if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return 'Virgo ♍'
+    if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return 'Libra ♎'
+    if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return 'Scorpio ♏'
+    if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return 'Sagittarius ♐'
+    if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return 'Capricorn ♑'
+    if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return 'Aquarius ♒'
+    if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return 'Pisces ♓'
+
+    return ''
+  }
+
+  // Auto-update star sign when date of birth changes
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+      starSign: name === 'dateOfBirth' ? getStarSign(value) : prev.starSign
+    }))
+
+    // Clear error when user starts typing
+    if (errors[name as keyof FormData]) {
+      setErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors[name as keyof FormData]
+        return newErrors
+      })
+    }
+  }
+
   const validateForm = () => {
+    console.log('Validating form data:', formData)
     const newErrors: Partial<FormData> = {}
 
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Name is required'
+      console.log('Name validation failed')
     }
 
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = 'Phone number is required'
-    } else if (!/^[0-9]{10}$/.test(formData.phoneNumber.replace(/\s/g, ''))) {
-      newErrors.phoneNumber = 'Please enter a valid 10-digit phone number'
+      console.log('Phone number validation failed - empty')
+    } else {
+      // More flexible phone validation - accept 6-15 digits
+      const cleanPhone = formData.phoneNumber.replace(/\D/g, '')
+      if (cleanPhone.length < 6 || cleanPhone.length > 15) {
+        newErrors.phoneNumber = 'Please enter a valid phone number'
+        console.log('Phone number validation failed - invalid length:', cleanPhone.length)
+      }
     }
 
     if (!formData.dateOfBirth) {
       newErrors.dateOfBirth = 'Date of birth is required'
+      console.log('Date of birth validation failed - empty')
     } else {
       const dob = new Date(formData.dateOfBirth)
       const today = new Date()
       if (dob > today) {
         newErrors.dateOfBirth = 'Date of birth cannot be in the future'
+        console.log('Date of birth validation failed - future date')
       }
     }
 
     if (!formData.timeOfBirth) {
       newErrors.timeOfBirth = 'Time of birth is required'
+      console.log('Time of birth validation failed - empty')
     } else if (!/^[0-9]{1,2}:[0-9]{2}$/.test(formData.timeOfBirth)) {
       newErrors.timeOfBirth = 'Please enter time in HH:MM format'
+      console.log('Time of birth validation failed - format')
     } else {
       const [hours, minutes] = formData.timeOfBirth.split(':')
       const hourNum = parseInt(hours, 10)
@@ -116,13 +173,16 @@ export default function AstrologyConsultationPage() {
 
       if (isNaN(hourNum) || isNaN(minNum) || hourNum < 1 || hourNum > 12 || minNum < 0 || minNum > 59) {
         newErrors.timeOfBirth = 'Please enter a valid time (1-12 hours, 00-59 minutes)'
+        console.log('Time of birth validation failed - invalid values')
       }
     }
 
     if (!formData.placeOfBirth.trim()) {
       newErrors.placeOfBirth = 'Location is required'
+      console.log('Place of birth validation failed')
     }
 
+    console.log('Validation errors found:', newErrors)
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -133,6 +193,7 @@ export default function AstrologyConsultationPage() {
 
     if (!validateForm()) {
       console.log('Form validation failed:', errors)
+      alert('Please fill all required fields correctly.')
       return
     }
 
@@ -141,6 +202,33 @@ export default function AstrologyConsultationPage() {
     try {
       // Generate receipt number
       const receiptNumber = `AC-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
+      console.log('Generated receipt number:', receiptNumber)
+
+      const payload = {
+        paymentType: 'astrology_consultation',
+        userInfo: {
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+        },
+        items: [{
+          name: 'Vedic Astrology Consultation',
+          description: 'Comprehensive birth chart analysis and personal guidance'
+        }],
+        serviceDetails: {
+          preferredDate: new Date().toISOString(),
+          birthDetails: {
+            dateOfBirth: formData.dateOfBirth,
+            timeOfBirth: `${formData.timeOfBirth} ${formData.timePeriod}`,
+            placeOfBirth: formData.placeOfBirth,
+            starSign: formData.starSign
+          }
+        },
+        receiptNumber: receiptNumber,
+        paymentId: 'direct-' + Date.now(),
+        status: 'completed'
+      }
+
+      console.log('Sending payload:', payload)
 
       // Store consultation booking in database
       const response = await fetch('/api/payments', {
@@ -148,37 +236,20 @@ export default function AstrologyConsultationPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          paymentType: 'astrology_consultation',
-          userInfo: {
-            fullName: formData.fullName,
-            phoneNumber: formData.phoneNumber,
-            },
-          items: [{
-            name: 'Vedic Astrology Consultation',
-            description: 'Comprehensive birth chart analysis and personal guidance'
-          }],
-          serviceDetails: {
-            preferredDate: new Date().toISOString(),
-            birthDetails: {
-              dateOfBirth: formData.dateOfBirth,
-              timeOfBirth: `${formData.timeOfBirth} ${formData.timePeriod}`,
-              placeOfBirth: formData.placeOfBirth
-            }
-          },
-          receiptNumber: receiptNumber,
-          paymentId: 'direct-' + Date.now(),
-          status: 'completed'
-        })
+        body: JSON.stringify(payload)
       })
 
+      console.log('Response status:', response.status)
       const data = await response.json()
+      console.log('Response data:', data)
 
       if (data.success) {
         console.log('Consultation booking processed successfully')
+        console.log('Redirecting to success page with booking:', data.receiptNumber || receiptNumber)
         // Redirect to success page
         router.push(`/astrology-consultation/success?booking=${data.receiptNumber || receiptNumber}`)
       } else {
+        console.error('API returned error:', data)
         alert('Failed to process consultation booking. Please try again.')
       }
     } catch (error) {
@@ -335,7 +406,7 @@ export default function AstrologyConsultationPage() {
                       type="date"
                       name="dateOfBirth"
                       value={formData.dateOfBirth}
-                      onChange={handleInputChange}
+                      onChange={handleDateChange}
                       max={new Date().toISOString().split('T')[0]}
                       className={`w-full px-5 py-4 rounded-xl border-2 text-lg ${
                         errors.dateOfBirth
@@ -395,6 +466,29 @@ export default function AstrologyConsultationPage() {
                   required
                   leftIcon={<MapPin className="w-5 h-5 text-gray-400" />}
                 />
+
+                {/* Moon Sign (Rashi) Field */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-3">
+                    Moon Sign (Rashi)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="starSign"
+                      value={formData.starSign}
+                      readOnly
+                      placeholder="Select date of birth to auto-calculate"
+                      className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-lg font-semibold text-purple-700 cursor-not-allowed"
+                    />
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <Star className="w-5 h-5 text-purple-500" />
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    ✨ Automatically calculated based on your date of birth
+                  </p>
+                </div>
               </div>
             </div>
 

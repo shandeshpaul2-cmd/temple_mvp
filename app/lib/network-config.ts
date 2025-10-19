@@ -53,15 +53,21 @@ Dear ${donorName},
 
 🙏 Thank you for your generous donation of ₹${amount.toLocaleString('en-IN')} to Shri Raghavendra Swamy Brundavana Sannidhi!
 
-📱 *Tap the link below to download your certificate:*
-
-👇 *One-Tap Download*
+📄 *Certificate Download Link:*
 ${certificateUrl}
 
-📱 *Important:*
-• Make sure your phone is connected to the same WiFi as this computer
-• Link will work instantly when you're on the same network
-• If it doesn't work, check your WiFi connection
+📱 *How to Download Your Certificate:*
+1️⃣ *Press and hold* on the link above
+2️⃣ *Select "Copy Link"* from the menu
+3️⃣ *Open your web browser* (Chrome, Safari, Firefox, etc.)
+4️⃣ *Paste the entire link* in the address bar at the top
+5️⃣ *Press Enter* to view and download your certificate
+
+💡 *Important Instructions:*
+• Please copy the *COMPLETE LINK* from beginning to end
+• Make sure you include "http://" all the way to the end
+• The link will open on any device with internet access
+• No WiFi connection required - works with mobile data too!
 
 🧾 *Receipt Details:*
 • Receipt Number: ${receiptNumber}

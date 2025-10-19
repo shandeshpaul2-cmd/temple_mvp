@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Phone } from 'lucide-react'
+import { ArrowLeft, Phone, User } from 'lucide-react'
 import { useLanguage } from '@/shared/contexts/contexts/LanguageContext'
 import { Button } from '@/shared/components/ui'
 
@@ -19,6 +19,9 @@ export default function PariharaPoojaPage() {
   const [services, setServices] = useState<PariharaService[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedService, setSelectedService] = useState<string>('')
+  const [devoteeName, setDevoteeName] = useState('')
+  const [devoteePhone, setDevoteePhone] = useState('')
+  const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
     fetchServices()
@@ -78,10 +81,83 @@ export default function PariharaPoojaPage() {
     setSelectedService(serviceId)
   }
 
-  const handleBookNow = () => {
-    if (selectedService) {
-      // Navigate to booking form with selected service
-      router.push(`/parihara-pooja/form?service=${selectedService}`)
+  const handleBookNow = async () => {
+    if (!selectedService || !devoteeName || !devoteePhone) {
+      alert('Please fill all required fields')
+      return
+    }
+
+    try {
+      setIsProcessing(true)
+
+      // Get selected service details
+      const service = services.find(s => s.id.toString() === selectedService)
+      if (service) {
+        // Generate receipt number and payment ID
+        const receiptNumber = `PP-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
+        const paymentId = 'direct-' + Date.now()
+
+        // Create booking details
+        const bookingDetails = {
+          poojaName: service.poojaName,
+          devoteeName,
+          devoteePhone,
+          amount: 1100,
+          receiptNumber,
+          paymentId,
+          date: new Date().toISOString()
+        }
+
+        // Store in session storage immediately
+        sessionStorage.setItem('pariharaBookingDetails', JSON.stringify(bookingDetails))
+
+        // Process payment via API
+        const response = await fetch('/api/payments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            paymentType: 'parihara_pooja',
+            amount: 1100,
+            userInfo: {
+              fullName: devoteeName,
+              phoneNumber: devoteePhone
+            },
+            items: [{
+              name: service.poojaName,
+              description: 'Parihara Pooja Booking'
+            }],
+            serviceDetails: {
+              preferredDate: new Date().toISOString(),
+              serviceType: 'parihara_pooja'
+            },
+            receiptNumber,
+            paymentId,
+            status: 'completed'
+          })
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+          // Update with server-generated data if available
+          const updatedDetails = {
+            ...bookingDetails,
+            receiptNumber: data.receiptNumber || receiptNumber,
+            paymentId: data.paymentId || paymentId
+          }
+          sessionStorage.setItem('pariharaBookingDetails', JSON.stringify(updatedDetails))
+        }
+
+        // Redirect to confirmation page
+        router.push(`/parihara-pooja/confirmation?service=${selectedService}&serviceName=${encodeURIComponent(service.poojaName)}&amount=1100&receipt=${receiptNumber}&paymentId=${paymentId}`)
+      }
+    } catch (error) {
+      console.error('Parihara pooja payment error:', error)
+      alert('Something went wrong. Please try again.')
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -181,13 +257,16 @@ export default function PariharaPoojaPage() {
             <div className="h-1.5 bg-gradient-to-r from-temple-maroon via-temple-gold to-temple-maroon"></div>
 
             <div className="p-6 sm:p-8">
-              
+
               <h2 className="font-cinzel text-xl sm:text-2xl font-bold text-temple-maroon mb-6 text-center">
-                Select a Pooja Service
+                Book Parihara Pooja Service
               </h2>
 
-              {/* Dropdown Select */}
+              {/* Service Selection */}
               <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Select Pooja Service <span className="text-red-500">*</span>
+                </label>
                 <select
                   value={selectedService}
                   onChange={handleSelectService}
@@ -203,14 +282,56 @@ export default function PariharaPoojaPage() {
                 </select>
               </div>
 
-              {/* Book Now Button */}
+              {/* Devotee Information */}
+              <div className="mb-6">
+                <h3 className="font-cinzel text-lg font-bold text-temple-maroon mb-4 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-temple-gold/20 rounded-lg flex items-center justify-center">
+                    <User className="w-4 h-4 text-temple-maroon" />
+                  </div>
+                  Devotee Information
+                </h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={devoteeName}
+                      onChange={(e) => setDevoteeName(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-temple-gold focus:outline-none transition-colors"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={devoteePhone}
+                      onChange={(e) => setDevoteePhone(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-temple-gold focus:outline-none transition-colors"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Process Payment Button */}
               <button
                 onClick={handleBookNow}
-                disabled={!selectedService}
+                disabled={!selectedService || !devoteeName || !devoteePhone || isProcessing}
                 className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
               >
-                Book Parihara Pooja
+                {isProcessing ? 'Processing...' : 'Proceed to Payment'}
               </button>
+
+              <div className="text-center mt-4 text-xs text-gray-500">
+                🙏 Parihara poojas performed on auspicious dates based on planetary positions
+              </div>
             </div>
           </div>
         )}

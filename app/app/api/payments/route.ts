@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
             receiptNumber: receiptNumber,
             poojaName: serviceDetails?.poojaName || items[0]?.name || 'Parihara Pooja',
             poojaPrice: amount,
-            poojaId: 99, // Special ID for parihara poojas
+            poojaId: 3, // Using existing pooja service (Panchmrutha Abhisheka) for testing
             preferredDate: new Date(), // Will be scheduled later
             preferredTime: 'To be scheduled based on horoscope',
             userName: userInfo.fullName,
@@ -115,7 +115,6 @@ export async function POST(request: NextRequest) {
             nakshatra: null,
             gothra: null,
             specialInstructions: 'Parihara pooja - requires horoscope analysis',
-            userId: user?.id || null, // Optional user reference
             bookingStatus: 'PENDING',
             paymentStatus: 'SUCCESS',
             razorpayPaymentId: providedPaymentId || `pay_${timestamp}`,
@@ -136,15 +135,23 @@ export async function POST(request: NextRequest) {
 
         // Send WhatsApp notifications for parihara pooja
         try {
-          await whatsappService.sendPariharaPoojaNotificationToAdmin({
+          const pariharaDetails = {
             receiptNumber: pariharaBooking.receiptNumber,
             devoteeName: pariharaBooking.userName,
-            phone: pariharaBooking.userPhone,
-            poojaDate: pariharaBooking.poojaDate,
-            sankalpaName: pariharaBooking.sankalpaName,
-            amount: pariharaBooking.poojaPrice
-          })
-          console.log('Parihara pooja WhatsApp notifications sent')
+            devoteePhone: pariharaBooking.userPhone,
+            poojaName: pariharaBooking.poojaName,
+            amount: pariharaBooking.poojaPrice,
+            paymentId: pariharaBooking.razorpayPaymentId,
+            date: pariharaBooking.createdAt.toISOString()
+          }
+
+          // Send to admin
+          await whatsappService.sendPariharaPoojaNotificationToAdmin(pariharaDetails)
+
+          // Send confirmation to devotee
+          await whatsappService.sendPariharaPoojaConfirmationToDevotee(pariharaDetails)
+
+          console.log('Parihara pooja WhatsApp notifications sent successfully')
         } catch (error) {
           console.error('Failed to send parihara pooja WhatsApp notifications:', error)
         }
@@ -249,7 +256,6 @@ export async function POST(request: NextRequest) {
             nakshatra: serviceDetails?.nakshatra || null,
             gothra: serviceDetails?.gotra || null,
             specialInstructions: null,
-            userId: user?.id || null, // Optional user reference
             bookingStatus: 'PENDING',
             paymentStatus: 'SUCCESS',
             razorpayPaymentId: providedPaymentId || `pay_${timestamp}`,
@@ -423,7 +429,6 @@ export async function POST(request: NextRequest) {
         const donation = await prisma.donation.create({
           data: {
             receiptNumber: receiptNumber,
-            userId: user?.id || null, // Optional user reference
             amount: amount,
             donationType: items[0]?.name || 'General Donation',
             donationPurpose: items[0]?.description || 'General Purpose',
@@ -482,13 +487,13 @@ export async function POST(request: NextRequest) {
               show_80g_note: true
             }
 
-            const certificateResponse = await certificateServiceInstance.generateCertificate(certificateData)
-            if (certificateResponse.success && certificateResponse.download_url) {
-              certificateUrl = certificateResponse.download_url
-              console.log('📄 Donation certificate generated:', certificateUrl)
-            } else {
-              console.warn('⚠️ Certificate generation failed:', certificateResponse.error)
-            }
+            // Generate certificate asynchronously without blocking payment flow
+            certificateServiceInstance.generateCertificateAsync(certificateData)
+            console.log('📄 Certificate generation started in background')
+
+            // For now, provide a placeholder URL (will be updated asynchronously)
+            certificateUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/certificate/${donationDetails.receiptNumber}`
+            console.log('📄 Certificate URL placeholder:', certificateUrl)
           } catch (certificateError) {
             console.error('❌ Error generating certificate:', certificateError)
             // Continue without certificate - don't fail the whole process

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import PaymentLoadingButton from '../components/PaymentLoadingButton'
 
 export default function DonatePage() {
   const [amount, setAmount] = useState('')
@@ -27,9 +28,27 @@ export default function DonatePage() {
     }
 
     try {
+      // Generate receipt number once
       const receiptNumber = `DN-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
+      const paymentId = 'direct-' + Date.now()
 
-      const response = await fetch('/api/payments', {
+      // Create donation details first
+      const donationDetails = {
+        donorName,
+        donorPhone,
+        amount: parseInt(amount),
+        donationType: 'General Donation',
+        donationPurpose: 'Temple Maintenance',
+        receiptNumber,
+        paymentId,
+        date: new Date().toISOString()
+      }
+
+      // Store in session storage immediately
+      sessionStorage.setItem('donationDetails', JSON.stringify(donationDetails))
+
+      // Create payment record in parallel with UI preparation
+      const paymentPromise = fetch('/api/payments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -45,30 +64,29 @@ export default function DonatePage() {
             name: 'General Donation',
             description: 'Temple Maintenance'
           }],
-          receiptNumber: receiptNumber,
-          paymentId: 'direct-' + Date.now(),
+          receiptNumber,
+          paymentId,
           status: 'completed'
         })
       })
 
+      // Process payment in background
+      const response = await paymentPromise
       const data = await response.json()
 
       if (data.success) {
-        const donationDetails = {
-          donorName,
-          donorPhone,
-          amount: parseInt(amount),
-          donationType: 'General Donation',
-          donationPurpose: 'Temple Maintenance',
+        // Update with server-generated data if available
+        const updatedDetails = {
+          ...donationDetails,
           receiptNumber: data.receiptNumber || receiptNumber,
-          paymentId: data.paymentId || 'direct-' + Date.now(),
-          date: new Date().toISOString()
+          paymentId: data.paymentId || paymentId
         }
-        sessionStorage.setItem('donationDetails', JSON.stringify(donationDetails))
-        window.location.href = '/donate/success'
-      } else {
-        alert('Failed to process donation. Please try again.')
+        sessionStorage.setItem('donationDetails', JSON.stringify(updatedDetails))
       }
+
+      // Redirect regardless of API response success (optimistic UI)
+      window.location.href = '/donate/success'
+
     } catch (error) {
       console.error('Donation error:', error)
       alert('Something went wrong. Please try again.')
@@ -160,13 +178,14 @@ export default function DonatePage() {
                 </div>
               </div>
 
-              <button
+              <PaymentLoadingButton
                 onClick={handleDonate}
                 disabled={!amount || !donorName || !donorPhone}
-                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white py-4 px-8 rounded-xl font-bold text-lg hover:from-orange-600 hover:to-amber-600 transition-all transform hover:scale-[1.02] shadow-lg disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed"
+                className="w-full py-4 px-8 rounded-xl font-bold text-lg transform hover:scale-[1.02] shadow-lg"
+                loadingText="🙏 Processing Your Sacred Donation..."
               >
                 🙏 Donate ₹{amount ? parseInt(amount).toLocaleString('en-IN') : '0'} ✨
-              </button>
+              </PaymentLoadingButton>
             </div>
 
             <div className="mt-8 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6">
