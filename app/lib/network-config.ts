@@ -28,7 +28,7 @@ export const networkConfig = {
   },
 
   // Port where the main Next.js app is running
-  appPort: '3010',
+  appPort: process.env.PORT || '3000',
 
   // Alternative port (if needed)
   alternativePort: '8010',

@@ -160,39 +160,21 @@ export default function AdminBookings() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50">
-      <div className="container mx-auto px-3 sm:px-6 lg:px-8 max-w-7xl">
-        {/* Header */}
-        <header className="py-4 sm:py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link
-                href="/admin/dashboard"
-                className="flex items-center gap-2 text-temple-maroon hover:text-temple-gold transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Dashboard</span>
-              </Link>
-              <span className="text-temple-gold/50">/</span>
-              <h1 className="text-lg sm:text-xl font-semibold text-temple-maroon">Pooja Bookings</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={fetchBookings}
-                className="p-2 text-temple-maroon hover:text-temple-gold transition-colors border border-temple-gold/20 hover:border-temple-gold/40 rounded-md"
-                title="Refresh"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </button>
-              <button
-                onClick={logout}
-                className="flex items-center gap-1 px-3 py-2 text-xs text-temple-maroon hover:bg-temple-cream/50 rounded transition-colors border border-temple-gold/20"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </header>
+    <div>
+      {/* Page Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-temple-maroon">Pooja Bookings</h1>
+          <p className="text-sm text-gray-600 mt-1">View and manage pooja ceremony bookings</p>
+        </div>
+        <button
+          onClick={fetchBookings}
+          className="p-2 text-temple-maroon hover:text-temple-gold transition-colors border border-temple-gold/20 hover:border-temple-gold/40 rounded-lg"
+          title="Refresh"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
@@ -420,7 +402,6 @@ export default function AdminBookings() {
             </div>
           </div>
         )}
-      </div>
 
       {/* Action Modal */}
       {showActionModal && selectedBooking && (

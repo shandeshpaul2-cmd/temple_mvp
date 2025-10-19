@@ -145,47 +145,26 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50">
-      {/* Admin Header */}
-      <header className="bg-white border-b border-temple-gold/20">
-        <div className="container mx-auto px-2 sm:px-4 lg:px-8 max-w-7xl">
-          <div className="flex items-center justify-between py-2 sm:py-4">
-            <div className="flex items-center gap-2">
-              <Link href="/" className="flex items-center gap-1 text-temple-maroon hover:text-temple-gold transition-colors">
-                <Home className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="font-medium text-xs sm:text-sm">Home</span>
-              </Link>
-              <span className="text-temple-gold/50 text-xs">/</span>
-              <h1 className="text-base sm:text-xl font-semibold text-temple-maroon">Admin Dashboard</h1>
-            </div>
-            <div className="flex items-center gap-1 sm:gap-3">
-              <span className="hidden sm:block text-xs text-gray-500">{lastRefresh.toLocaleTimeString()}</span>
-              <button
-                onClick={fetchDashboardData}
-                className="p-1.5 sm:p-2 text-temple-maroon hover:text-temple-gold transition-colors hover:bg-temple-cream/50 rounded-lg"
-                title="Refresh"
-              >
-                <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-              <button
-                onClick={logout}
-                className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm text-temple-maroon hover:bg-temple-cream/50 rounded-lg transition-colors border border-temple-gold/20"
-              >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </button>
-            </div>
-          </div>
+    <div>
+      {/* Page Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-temple-maroon">Dashboard</h1>
+          <p className="text-sm text-gray-600 mt-1">Manage temple bookings and donations</p>
         </div>
-      </header>
-
-      <div className="container mx-auto px-2 sm:px-4 lg:px-8 max-w-7xl py-2 sm:py-6">
-        {/* Welcome Section */}
-        <div className="text-center mb-4 sm:mb-8">
-          <h2 className="text-lg sm:text-2xl font-semibold text-temple-maroon mb-1 sm:mb-2">Dashboard Overview</h2>
-          <p className="text-xs sm:text-sm text-gray-600">Manage temple bookings and donations</p>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-500">{lastRefresh.toLocaleTimeString()}</span>
+          <button
+            onClick={fetchDashboardData}
+            className="p-2 text-temple-maroon hover:text-temple-gold transition-colors hover:bg-temple-cream/50 rounded-lg border border-temple-gold/20"
+            title="Refresh"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
         </div>
+      </div>
 
+      <div>
         {/* Quick Stats Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-8">
           <div className="bg-white rounded-xl shadow-sm border border-temple-gold/20 p-3 sm:p-6 hover:shadow-md transition-shadow">

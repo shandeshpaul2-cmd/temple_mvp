@@ -192,46 +192,21 @@ export default function AdminDonations() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-cream via-white to-orange-50">
-      <div className="container mx-auto px-3 sm:px-6 lg:px-8 max-w-7xl">
-        {/* Header */}
-        <header className="py-4 sm:py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link
-                href="/admin/dashboard"
-                className="flex items-center gap-2 text-temple-maroon hover:text-temple-gold transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Dashboard</span>
-              </Link>
-              <span className="text-gray-400">/</span>
-              <h1 className="text-lg sm:text-xl font-bold text-temple-maroon">Donations</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={fetchDonations}
-                className="p-2 text-temple-maroon hover:text-temple-gold transition-colors border border-temple-maroon/30 hover:border-temple-gold/50 rounded-md"
-                title="Refresh"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </button>
-              <button
-                onClick={logout}
-                className="flex items-center gap-1 px-3 py-2 text-xs text-red-600 hover:bg-red-50 rounded transition-colors border border-red-300/30"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </header>
-
-        {/* Decorative Divider */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-temple-gold"></div>
-          <div className="text-base sm:text-xl text-temple-gold">✦</div>
-          <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-temple-gold"></div>
+    <div>
+      {/* Page Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-temple-maroon">Donations</h1>
+          <p className="text-sm text-gray-600 mt-1">Track donations and manage donor information</p>
         </div>
+        <button
+          onClick={fetchDonations}
+          className="p-2 text-temple-maroon hover:text-temple-gold transition-colors border border-temple-gold/20 hover:border-temple-gold/40 rounded-lg"
+          title="Refresh"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
@@ -470,7 +445,6 @@ export default function AdminDonations() {
             </div>
           </div>
         )}
-      </div>
 
       {/* Action Modal */}
       {showActionModal && selectedDonation && (

@@ -1,2 +1,2 @@
 // Re-export from donations admin API
-export { GET, POST } from '@/features/donations/api/admin-donations'
+export { GET, PATCH } from '@/features/donations/api/admin-donations'
