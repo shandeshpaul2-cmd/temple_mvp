@@ -20,7 +20,6 @@
   html,body{height:100%}
   body{ margin:0; background:#efe7d9; color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact;
         font-family:'Noto Serif', Georgia, serif; }
-  @page { size: A4; margin: 0; }
   .toolbar{text-align:center; margin:10px 0 14px}
   .toolbar .btn{padding:8px 12px;border-radius:9px;border:1px solid #d8c29f;background:#fff;font-family:Inter,sans-serif;font-weight:700;cursor:pointer;font-size:14px}
   @media print{ .toolbar{display:none} }
@@ -116,6 +115,10 @@
             <div class="label">Date</div>
             <div class="value" id="donationDate">Enter Date</div>
           </div>
+          <div class="row">
+            <div class="label">Phone</div>
+            <div class="value" id="phoneNumber">Enter Phone</div>
+          </div>
         </div>
         <p class="gst-center">
           GST is not applicable as the amount is contributed to a trust under the provisions of Section 12A or 80G of the Income Tax Act.
@@ -142,7 +145,8 @@
     if(typeof d.amountINR === 'number') $('amountDonated').textContent = formatINR(d.amountINR);
     else if(d.amountText) $('amountDonated').textContent = d.amountText;
     if(d.donationId) $('donationId').textContent = d.donationId;
-    if(d.donationDate){
+    
+    if(d.phoneNumber) $('phoneNumber').textContent = d.phoneNumber; if(d.donationDate){
       if(/^\d{4}-\d{2}-\d{2}/.test(d.donationDate)){ 
         const dt = new Date(d.donationDate);
         const dd = String(dt.getDate()).padStart(2,'0');

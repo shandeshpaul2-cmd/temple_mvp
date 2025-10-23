@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle, Home, Download, Share2, Calendar, Gift, MapPin, Phone } from 'lucide-react'
 import { certificateService, CertificateData } from '@/lib/certificate-service'
+import { LanguageSelector } from '@/shared/components/common/LanguageSelector'
 
 interface DonationDetails {
   donorName: string
@@ -92,8 +93,15 @@ export default function DonationSuccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 flex items-center justify-center py-8 px-4">
-      <div className="max-w-xl w-full">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 py-8 px-4">
+      {/* Language Selector */}
+      <div className="max-w-xl mx-auto mb-4">
+        <div className="flex justify-end">
+          <LanguageSelector />
+        </div>
+      </div>
+
+      <div className="max-w-xl w-full mx-auto">
         {/* Success Card */}
         <div className="bg-white rounded-3xl shadow-xl border-2 border-red-100 overflow-hidden">
           {/* Top Accent Bar */}

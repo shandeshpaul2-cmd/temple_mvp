@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Phone, User } from 'lucide-react'
 import { useLanguage } from '@/shared/contexts/contexts/LanguageContext'
 import { Button } from '@/shared/components/ui'
+import { LanguageSelector } from '@/shared/components/common/LanguageSelector'
 
 interface PariharaService {
   id: number
@@ -83,7 +84,7 @@ export default function PariharaPoojaPage() {
 
   const handleBookNow = async () => {
     if (!selectedService || !devoteeName || !devoteePhone) {
-      alert('Please fill all required fields')
+      alert(t.pleaseFillRequiredFields)
       return
     }
 
@@ -155,7 +156,7 @@ export default function PariharaPoojaPage() {
       }
     } catch (error) {
       console.error('Parihara pooja payment error:', error)
-      alert('Something went wrong. Please try again.')
+      alert(t.somethingWentWrong)
     } finally {
       setIsProcessing(false)
     }
@@ -172,13 +173,16 @@ export default function PariharaPoojaPage() {
       <div className="container mx-auto px-3 sm:px-6 lg:px-8 max-w-4xl py-4 sm:py-6">
         {/* Header - Compact */}
         <div className="mb-4 sm:mb-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-temple-maroon hover:text-temple-gold transition-colors mb-3"
-          >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="font-medium text-sm sm:text-base">Back to Home</span>
-          </Link>
+          <div className="flex justify-between items-center mb-3">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-temple-maroon hover:text-temple-gold transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-medium text-sm sm:text-base">{t.backToHome}</span>
+            </Link>
+            <LanguageSelector />
+          </div>
 
           <div className="text-center">
             {/* Sri Raghavendra Swamy Logo */}
@@ -194,10 +198,10 @@ export default function PariharaPoojaPage() {
             </div>
 
             <h1 className="font-cinzel text-xl sm:text-3xl font-bold text-temple-maroon mb-1 sm:mb-2">
-              Parihara Pooja Services
+              {t.pariharaPooja}
             </h1>
             <p className="text-gray-600 text-xs sm:text-sm max-w-2xl mx-auto">
-              Sacred remedies to overcome planetary doshas and remove life obstacles
+              {t.pariharaPoojaSubtitle}
             </p>
 
             {/* Decorative Divider */}
@@ -212,7 +216,7 @@ export default function PariharaPoojaPage() {
         {/* Important Information - Moved to Top */}
         <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-4 sm:p-6 border border-red-200 mb-6">
           <h3 className="font-cinzel text-base sm:text-lg font-bold text-temple-maroon mb-3 text-center">
-            Important Information
+            {t.importantInformation}
           </h3>
           <div className="space-y-2 mb-4">
             <div className="flex items-start gap-2">
@@ -220,7 +224,7 @@ export default function PariharaPoojaPage() {
                 <span className="text-temple-maroon font-bold text-xs">!</span>
               </div>
               <p className="text-xs sm:text-sm text-gray-700">
-                <span className="font-semibold">Consultation Required:</span> For complex doshas, we recommend a personal consultation before booking.
+                <span className="font-semibold">{t.consultationRequired}</span> {t.consultationRequiredDesc}
               </p>
             </div>
             <div className="flex items-start gap-2">
@@ -228,7 +232,7 @@ export default function PariharaPoojaPage() {
                 <span className="text-temple-maroon font-bold text-xs">!</span>
               </div>
               <p className="text-xs sm:text-sm text-gray-700">
-                <span className="font-semibold">Timing:</span> Parihara poojas are performed on auspicious days based on planetary positions.
+                <span className="font-semibold">{t.timing}</span> {t.timingDesc}
               </p>
             </div>
           </div>
@@ -238,7 +242,7 @@ export default function PariharaPoojaPage() {
               className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-temple-gold to-temple-gold/80 text-temple-maroon rounded-lg font-semibold hover:from-temple-gold/90 hover:to-temple-gold/70 transition-all duration-300 text-xs sm:text-sm whitespace-nowrap border border-temple-gold/30"
             >
               <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
-              Call Now
+              {t.callNow}
             </button>
           </div>
         </div>
@@ -259,13 +263,13 @@ export default function PariharaPoojaPage() {
             <div className="p-6 sm:p-8">
 
               <h2 className="font-cinzel text-xl sm:text-2xl font-bold text-temple-maroon mb-6 text-center">
-                Book Parihara Pooja Service
+                {t.bookPooja}
               </h2>
 
               {/* Service Selection */}
               <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Select Pooja Service <span className="text-red-500">*</span>
+                  {t.selectPoojaService} <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={selectedService}
@@ -273,7 +277,7 @@ export default function PariharaPoojaPage() {
                   className="w-full px-4 py-3 rounded-xl border-2 border-temple-gold/20 focus:border-temple-gold focus:outline-none transition-colors text-gray-700 bg-white leading-loose"
                   style={{ lineHeight: '2' }}
                 >
-                  <option value="" style={{ padding: '8px 0' }}>Choose a pooja service...</option>
+                  <option value="" style={{ padding: '8px 0' }}>{t.chooseService2}</option>
                   {services.map((service) => (
                     <option key={service.id} value={service.id} style={{ padding: '8px 0' }}>
                       {service.poojaName}
@@ -288,33 +292,33 @@ export default function PariharaPoojaPage() {
                   <div className="w-8 h-8 bg-temple-gold/20 rounded-lg flex items-center justify-center">
                     <User className="w-4 h-4 text-temple-maroon" />
                   </div>
-                  Devotee Information
+                  {t.devoteeInfo}
                 </h3>
 
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Full Name <span className="text-red-500">*</span>
+                      {t.fullName} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={devoteeName}
                       onChange={(e) => setDevoteeName(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-temple-gold focus:outline-none transition-colors"
-                      placeholder="Enter your full name"
+                      placeholder={t.enterYourFullName}
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Phone Number <span className="text-red-500">*</span>
+                      {t.phoneNumber} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
                       value={devoteePhone}
                       onChange={(e) => setDevoteePhone(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-temple-gold focus:outline-none transition-colors"
-                      placeholder="Enter your phone number"
+                      placeholder={t.enterYourPhone}
                     />
                   </div>
                 </div>
@@ -326,11 +330,11 @@ export default function PariharaPoojaPage() {
                 disabled={!selectedService || !devoteeName || !devoteePhone || isProcessing}
                 className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
               >
-                {isProcessing ? 'Processing...' : 'Proceed to Payment'}
+                {isProcessing ? t.processing : t.proceedToPayment}
               </button>
 
               <div className="text-center mt-4 text-xs text-gray-500">
-                🙏 Parihara poojas performed on auspicious dates based on planetary positions
+                🙏 {t.auspiciousDates}
               </div>
             </div>
           </div>

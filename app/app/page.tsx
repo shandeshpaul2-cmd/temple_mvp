@@ -126,13 +126,13 @@ export default function Home() {
                     <Star className="w-4 h-4 text-white" />
                   </div>
                   <h3 className="font-cinzel text-sm font-bold text-temple-maroon">
-                    Astrology
+                    {t.astrology}
                   </h3>
                   <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
-                    Birth chart analysis and divine guidance
+                    {t.astrologyDesc}
                   </p>
                   <div className="flex items-center gap-1 text-temple-maroon text-xs font-medium">
-                    <span>Consult Now</span>
+                    <span>{t.consultNow}</span>
                     <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
@@ -147,13 +147,13 @@ export default function Home() {
                     <Sun className="w-4 h-4 text-white" />
                   </div>
                   <h3 className="font-cinzel text-sm font-bold text-temple-maroon">
-                    Parihara Pooja
+                    {t.pariharaPoojaShort}
                   </h3>
                   <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
-                    Remove planetary doshas and life obstacles
+                    {t.pariharaPoojaShortDesc}
                   </p>
                   <div className="flex items-center gap-1 text-temple-maroon text-xs font-medium">
-                    <span>Book Parihara</span>
+                    <span>{t.bookParihara}</span>
                     <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>

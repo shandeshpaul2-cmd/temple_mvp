@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Share2, Calendar, User, Phone, CheckCircle, Home } from 'lucide-react'
+import { LanguageSelector } from '@/shared/components/common/LanguageSelector'
 
 export default function PoojaConfirmationPage() {
   const params = useParams()
@@ -102,13 +103,16 @@ export default function PoojaConfirmationPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl py-8">
         {/* Header */}
         <div className="mb-6">
-          <Link
-            href="/book-pooja"
-            className="flex items-center gap-2 text-green-700 hover:text-green-600 transition-colors mb-4"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Back to Pooja Booking</span>
-          </Link>
+          <div className="flex justify-between items-center mb-4">
+            <Link
+              href="/book-pooja"
+              className="flex items-center gap-2 text-green-700 hover:text-green-600 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Back to Pooja Booking</span>
+            </Link>
+            <LanguageSelector />
+          </div>
 
           <div className="text-center">
             <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">

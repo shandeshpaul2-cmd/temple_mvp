@@ -8,7 +8,7 @@ function getLocalNetworkIp(): string {
   try {
     // For development, we'll use a fallback IP
     // In production, you might want to implement proper IP detection
-    const fallbackIp = '192.168.0.175'
+    const fallbackIp = '192.168.0.149'
 
     // Try to get from environment variable first
     const envIp = process.env.LOCAL_NETWORK_IP
@@ -17,7 +17,7 @@ function getLocalNetworkIp(): string {
     return fallbackIp
   } catch (error) {
     console.error('Error detecting local IP:', error)
-    return '192.168.0.175' // Fallback IP
+    return '192.168.0.149' // Fallback IP
   }
 }
 

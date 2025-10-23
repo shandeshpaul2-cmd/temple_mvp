@@ -304,45 +304,42 @@ ${details.donationPurpose ? `• Purpose: ${details.donationPurpose}` : ''}
     })
 
     // Regular donation receipt message
-    const message = `🙏 *${this.templeName} - Donation Receipt* 🙏
+    const message = `*${this.templeName}*
+*Donation Receipt*
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-Dear *${details.donorName}*
+Dear *${details.donorName}*,
 
-🙏 *Heartfelt gratitude for your generous contribution!*
+Thank you for your generous contribution to our temple.
 
-🧾 *Donation Details*
-• Receipt Number: ${details.receiptNumber}
-• Amount: ₹${details.amount.toLocaleString('en-IN')}
-• Donation Type: ${details.donationType}
-${details.donationPurpose ? `• Purpose: ${details.donationPurpose}` : ''}
-• Date: ${donationDate}
+*Donation Details*
 
-📞 *Contact*: ${details.donorPhone}
+Receipt Number: ${details.receiptNumber}
+Amount: Rs. ${details.amount.toLocaleString('en-IN')}
+Date: ${donationDate}
+Contact: ${details.donorPhone}
 
-${pdfUrl ? `📄 *Your Donation Certificate is Ready!* 📄
+━━━━━━━━━━━━━━━━━━━━━
+${pdfUrl ? `
+*Your Donation Certificate*
 
-🔗 *Certificate Download Link:*
+Your official donation certificate is ready for download.
+
+*Download Certificate:*
 ${pdfUrl}
 
-📱 *How to Download:*
-1️⃣ *Press and hold* on the link above
-2️⃣ *Select "Copy Link"* from the menu
-3️⃣ *Open your browser* (Chrome, Safari, etc.)
-4️⃣ *Paste the entire link* in the address bar
-5️⃣ *Press Enter* to download your certificate
+👆 Tap the link above to download your certificate directly.
 
-💡 *Important*: Please copy the *complete link* from start to finish for it to work properly!` : ''}
+━━━━━━━━━━━━━━━━━━━━━
+` : ''}
+May Sri Raghavendra Swamy's divine blessings be upon you and your family.
+
+📞 For any queries: ${this.adminPhoneNumber}
+📍 ${this.templeName}
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-💫 *May Sri Raghavendra Swamy's divine blessings be upon you and your family!*
-
-📞 *For any queries*: ${this.adminPhoneNumber}
-📍 *Location*: ${this.templeName}
-
-━━━━━━━━━━━━━━━━━━━━━
 *Service to Humanity is Service to God*`
 
     const recipients = [fixedRecipientPhone]
@@ -427,40 +424,46 @@ ${details.preferredTime ? `• Preferred Time: ${details.preferredTime}` : ''}
       day: 'numeric'
     })
 
-    const message = `🙏 *${this.templeName} - Pooja Booking Confirmed* 🙏
+    const message = `*${this.templeName}*
+*Pooja Booking Confirmation*
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-Dear *${details.devoteeName}*
+Dear *${details.devoteeName}*,
 
-✅ *Your pooja booking has been successfully confirmed!*
+Your pooja booking has been successfully confirmed.
 
-🧾 *Booking Details*
-• Receipt No: ${details.receiptNumber}
-• Pooja: ${details.poojaName}
-• Amount Paid: ₹${details.amount.toLocaleString('en-IN')}
-${details.preferredDate ? `• Preferred Date: ${details.preferredDate}` : ''}
-${details.preferredTime ? `• Preferred Time: ${details.preferredTime}` : ''}
-${details.nakshatra ? `• Nakshatra: ${details.nakshatra}` : ''}
-${details.gotra ? `• Gotra: ${details.gotra}` : ''}
-• Booking Date: ${bookingDate}
+*Booking Details*
 
-📞 *Contact*: ${details.devoteePhone}
+Receipt Number: ${details.receiptNumber}
+Pooja Name: ${details.poojaName}
+Amount Paid: Rs. ${details.amount.toLocaleString('en-IN')}
+${details.preferredDate ? `Preferred Date: ${details.preferredDate}` : ''}
+${details.preferredTime ? `Preferred Time: ${details.preferredTime}` : ''}
+${details.nakshatra ? `Nakshatra: ${details.nakshatra}` : ''}
+${details.gotra ? `Gotra: ${details.gotra}` : ''}
+Booking Date: ${bookingDate}
+Contact: ${details.devoteePhone}
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-📞 *Next Steps*
+*Next Steps*
+
 Our temple priest will contact you within 24 hours to:
-✓ Confirm the exact date and timing
-✓ Explain the pooja procedure
-✓ Discuss any specific requirements
 
-🔥 *May Sri Raghavendra Swamy's divine blessings fulfill your prayers!*
-
-📞 *For queries*: ${this.adminPhoneNumber}
-📍 *Temple*: ${this.templeName}
+- Confirm the exact date and timing
+- Explain the pooja procedure
+- Discuss any specific requirements
 
 ━━━━━━━━━━━━━━━━━━━━━
+
+May Sri Raghavendra Swamy's divine blessings fulfill your prayers.
+
+📞 For queries: ${this.adminPhoneNumber}
+📍 ${this.templeName}
+
+━━━━━━━━━━━━━━━━━━━━━
+
 *Service to Humanity is Service to God*`
 
     const recipients = [fixedRecipientPhone]
@@ -535,39 +538,45 @@ Our temple priest will contact you within 24 hours to:
       day: 'numeric'
     })
 
-    const message = `🔮 *${this.templeName} - Parihara Pooja Booking Confirmed* 🔮
+    const message = `*${this.templeName}*
+*Parihara Pooja Booking Confirmation*
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-Dear *${details.devoteeName}*
+Dear *${details.devoteeName}*,
 
-✅ *Your parihara pooja booking has been successfully confirmed!*
+Your parihara pooja booking has been successfully confirmed.
 
-🧾 *Booking Details*
-• Receipt No: ${details.receiptNumber}
-• Pooja: ${details.poojaName}
-• Amount Paid: ₹${details.amount.toLocaleString('en-IN')}
-• Booking Date: ${bookingDate}
+*Booking Details*
 
-📞 *Contact*: ${details.devoteePhone}
+Receipt Number: ${details.receiptNumber}
+Pooja Name: ${details.poojaName}
+Amount Paid: Rs. ${details.amount.toLocaleString('en-IN')}
+Booking Date: ${bookingDate}
+Contact: ${details.devoteePhone}
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-📞 *Next Steps*
+*Next Steps*
+
 Our expert astrologers will contact you within 24 hours to:
-✓ Analyze your horoscope and birth chart
-✓ Determine the most auspicious date and time
-✓ Explain the pooja procedure and samagri (materials)
-✓ Provide guidance on personal preparations
 
-🔮 *Parihara poojas are performed on specific auspicious dates based on planetary positions for maximum spiritual benefit.*
+- Analyze your horoscope and birth chart
+- Determine the most auspicious date and time
+- Explain the pooja procedure and required materials
+- Provide guidance on personal preparations
 
-💫 *May Sri Raghavendra Swamy's divine grace remove all obstacles and bring prosperity to your life!*
-
-📞 *For queries*: ${this.adminPhoneNumber}
-📍 *Temple*: ${this.templeName}
+*Note:* Parihara poojas are performed on specific auspicious dates based on planetary positions for maximum spiritual benefit.
 
 ━━━━━━━━━━━━━━━━━━━━━
+
+May Sri Raghavendra Swamy's divine grace remove all obstacles and bring prosperity to your life.
+
+📞 For queries: ${this.adminPhoneNumber}
+📍 ${this.templeName}
+
+━━━━━━━━━━━━━━━━━━━━━
+
 *Service to Humanity is Service to God*`
 
     return await this.sendWhatsAppMessage(fixedRecipientPhone, message)
@@ -583,53 +592,52 @@ Our expert astrologers will contact you within 24 hours to:
     // Fixed phone number for all WhatsApp receipts
     const fixedRecipientPhone = '7760118171'
 
-    const message = `🔮 *${this.templeName} - Astrology Consultation Request Received* 🔮
+    const message = `*${this.templeName}*
+*Astrology Consultation Request Received*
 
 ━━━━━━━━━━━━━━━━━━━━━
 
 Dear *${details.clientName}*,
 
-✅ *Your Vedic astrology consultation request has been successfully received!*
+Your Vedic astrology consultation request has been successfully received.
 
-🧾 *Request Details*
-• Reference: ${details.receiptNumber}
-• Consultation Type: ${details.consultationType}
-• Request Date: ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+*Request Details*
 
-🌟 *Your Birth Information*
-• Date of Birth: ${details.birthDetails?.dateOfBirth || 'Provided'}
-• Time of Birth: ${details.birthDetails?.timeOfBirth || 'Provided'}
-• Birth Place: ${details.birthDetails?.placeOfBirth || 'Provided'}
-• Moon Sign (Rashi): ${details.birthDetails?.starSign || 'Calculating...'}
+Reference Number: ${details.receiptNumber}
+Consultation Type: ${details.consultationType}
+Request Date: ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+Contact: ${details.clientPhone}
 
-📞 *Contact*: ${details.clientPhone}
+*Your Birth Information*
+
+Date of Birth: ${details.birthDetails?.dateOfBirth || 'Provided'}
+Time of Birth: ${details.birthDetails?.timeOfBirth || 'Provided'}
+Birth Place: ${details.birthDetails?.placeOfBirth || 'Provided'}
+Moon Sign (Rashi): ${details.birthDetails?.starSign || 'Calculating...'}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*What Happens Next*
+
+Our expert Vedic astrologer will contact you within 24 hours to:
+
+- Discuss your specific requirements
+- Analyze your birth chart and planetary positions
+- Schedule a detailed consultation session
+- Discuss consultation fees and payment
+
+*Note:* Payment will be finalized after understanding your consultation requirements during the initial call.
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-📞 *What Happens Next*
-Our expert Vedic astrologer will:
-• Call you within 24 hours to discuss your specific requirements
-• Analyze your detailed birth chart and planetary positions
-• Provide insights into career, marriage, health, and spiritual guidance
-• Discuss personalized remedies and solutions based on your horoscope
-• Schedule a comprehensive consultation session at your convenience
+May ancient Vedic wisdom guide you toward prosperity and peace.
 
-💫 *Our Vedic astrology services include:*
-• Complete birth chart analysis (Janma Kundali)
-• Planetary position analysis and dasha predictions
-• Career and business guidance
-• Marriage compatibility and relationship advice
-• Health predictions and remedies
-• Spiritual guidance and parihara solutions
-
-💡 *Payment Process*
-Payment will be discussed and finalized after our astrologer understands your specific consultation requirements during the initial call.
-
-📞 *For any urgent queries*: ${this.adminPhoneNumber}
-📍 *Temple*: ${this.templeName}
+📞 For queries: ${this.adminPhoneNumber}
+📍 ${this.templeName}
 
 ━━━━━━━━━━━━━━━━━━━━━
-*🙏 Divine Guidance Through Ancient Vedic Wisdom*`
+
+*Divine Guidance Through Ancient Vedic Wisdom*`
 
     const recipients = [fixedRecipientPhone]
     if (sendToAdmin) {

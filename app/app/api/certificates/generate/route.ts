@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       amount: body.amount,
       donation_id: body.donation_id,
       donation_date: body.donation_date,
+      phone_number: body.phone_number || "",
       reason_text: body.reason_text || "for their valued contribution"
     };
 
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     // Get paths - Next.js runs from app/, certificates are in the same directory
     const projectRoot = process.cwd();
     const certScript = path.join(projectRoot, 'certificates', 'lib', 'certificate_generator.py');
-    const htmlTemplate = path.join(projectRoot, 'certificates', 'templates', 'donation_certificate_temple_v18.html');
+    const htmlTemplate = path.join(projectRoot, 'certificates', 'templates', 'donation_certificate_temple_v19_phone.html');
     const outputPath = path.join(projectRoot, 'certificates', 'output', filename);
 
 
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
       --amount "${certificateData.amount}" \
       --id "${certificateData.donation_id}" \
       --date "${certificateData.donation_date}" \
+      --phone "${certificateData.phone_number}" \
       --reason "${certificateData.reason_text}"`;
 
     try {

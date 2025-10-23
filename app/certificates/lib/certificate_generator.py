@@ -26,6 +26,7 @@ class CertInput:
     amount_in_inr: Decimal | float | str
     donation_id: str
     donation_date: date | str  # 'YYYY-MM-DD' recommended (your template formats this to DD-MM-YYYY)
+    phone_number: str = ""  # phone number field for v19 template
     reason_text: str = "for their valued contribution"  # shown under the name
 
     def to_cert_data(self) -> dict:
@@ -48,6 +49,7 @@ class CertInput:
             "amountINR": float(amount),      # template formats to ₹ with en-IN locale
             "donationId": self.donation_id,
             "donationDate": dstr,
+            "phoneNumber": self.phone_number,
             "reasonText": self.reason_text,
         }
 
@@ -95,12 +97,13 @@ class ExactCertificatePDF:
 def _cli():
     import argparse
     parser = argparse.ArgumentParser(description="Generate donation certificate PDF exactly from the provided HTML.")
-    parser.add_argument("--html", required=True, help="Path to donation_certificate_temple_v18.html")
+    parser.add_argument("--html", required=True, help="Path to donation_certificate_temple_v19_phone.html")
     parser.add_argument("--out", required=True, help="Output PDF path")
     parser.add_argument("--name", required=True, help="Donor name")
     parser.add_argument("--amount", required=True, help="Amount in INR (e.g., 500 or 500.00)")
     parser.add_argument("--id", required=True, help="Donation/Receipt ID")
     parser.add_argument("--date", required=True, help="Donation date (YYYY-MM-DD preferred)")
+    parser.add_argument("--phone", default="", help="Donor phone number")
     parser.add_argument("--reason", default="for their valued contribution")
     args = parser.parse_args()
 
@@ -111,6 +114,7 @@ def _cli():
             amount_in_inr=args.amount,
             donation_id=args.id,
             donation_date=args.date,
+            phone_number=args.phone,
             reason_text=args.reason,
         ),
         Path(args.out),

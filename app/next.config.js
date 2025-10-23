@@ -14,6 +14,10 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  allowedDevOrigins: [
+    'http://106.51.129.224:3000',
+    'http://192.168.0.149:3000',
+  ],
 }
 
 module.exports = nextConfig

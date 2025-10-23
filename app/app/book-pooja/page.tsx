@@ -3,8 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import PaymentLoadingButton from '../components/PaymentLoadingButton'
+import { LanguageSelector } from '@/shared/components/common/LanguageSelector'
+import { useLanguage } from '@/shared/contexts/contexts/LanguageContext'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 
 export default function BookPoojaPage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const [poojaName, setPoojaName] = useState('')
   const [amount, setAmount] = useState('')
@@ -43,7 +48,7 @@ export default function BookPoojaPage() {
 
   const handleBookPooja = async () => {
     if (!poojaName || !amount || !devoteeName || !devoteePhone) {
-      alert('Please fill all required fields')
+      alert(t.pleaseFillRequiredFields)
       return
     }
 
@@ -116,25 +121,37 @@ export default function BookPoojaPage() {
 
     } catch (error) {
       console.error('Pooja booking error:', error)
-      alert('Something went wrong. Please try again.')
+      alert(t.somethingWentWrong)
     }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
+        {/* Header with Language Selector and Back Button */}
+        <div className="flex justify-between items-center mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">{t.backToHome}</span>
+          </Link>
+          <LanguageSelector />
+        </div>
+
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h1 className="text-3xl font-bold text-purple-800 text-center mb-8">
-            🕉️ Book Pooja
+            🕉️ {t.bookPooja}
           </h1>
 
           <p className="text-gray-600 text-center mb-8">
-            Book a pooja at Shri Raghavendra Swamy Brundavana Sannidhi and receive blessings.
+            {t.bookPoojaDesc}
           </p>
 
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Select Pooja</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">{t.selectPoojaService}</h2>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {poojaOptions.map((pooja) => (
                   <div
@@ -156,37 +173,37 @@ export default function BookPoojaPage() {
             </div>
 
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Devotee Details</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">{t.devoteeInfo}</h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name *
+                    {t.fullName} *
                   </label>
                   <input
                     type="text"
                     value={devoteeName}
                     onChange={(e) => setDevoteeName(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Enter your full name"
+                    placeholder={t.enterYourFullName}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number *
+                    {t.phoneNumber} *
                   </label>
                   <input
                     type="tel"
                     value={devoteePhone}
                     onChange={(e) => setDevoteePhone(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Enter your phone number"
+                    placeholder={t.enterYourPhone}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Preferred Date
+                    {t.preferredDate}
                   </label>
                   <input
                     type="date"
@@ -198,7 +215,7 @@ export default function BookPoojaPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Preferred Time
+                    {t.preferredTime}
                   </label>
                   <input
                     type="time"
@@ -210,14 +227,14 @@ export default function BookPoojaPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nakshatra (Birth Star)
+                    {t.nakshatra}
                   </label>
                   <select
                     value={nakshatra}
                     onChange={(e) => setNakshatra(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
-                    <option value="">Select Nakshatra</option>
+                    <option value="">{t.selectNakshatra}</option>
                     {nakshatraOptions.map((nak) => (
                       <option key={nak} value={nak}>{nak}</option>
                     ))}
@@ -226,14 +243,14 @@ export default function BookPoojaPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Gotra
+                    {t.gotra}
                   </label>
                   <input
                     type="text"
                     value={gotra}
                     onChange={(e) => setGotra(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Enter your gotra (optional)"
+                    placeholder={t.enterGotra}
                   />
                 </div>
               </div>
@@ -252,16 +269,16 @@ export default function BookPoojaPage() {
               onClick={handleBookPooja}
               disabled={!poojaName || !amount || !devoteeName || !devoteePhone}
               className="w-full bg-purple-600 hover:bg-purple-700 py-3 px-6 rounded-lg font-semibold"
-              loadingText="🔥 Processing Your Pooja Booking..."
+              loadingText={t.processing}
             >
-              🔥 Book Pooja - ₹{amount ? parseInt(amount).toLocaleString('en-IN') : '0'}
+              {t.bookPooja} - ₹{amount ? parseInt(amount).toLocaleString('en-IN') : '0'}
             </PaymentLoadingButton>
           </div>
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h3 className="font-semibold text-blue-800 mb-2">Divine Scheduling Confirmation</h3>
+            <h3 className="font-semibold text-blue-800 mb-2">{t.importantInformation}</h3>
             <p className="text-sm text-gray-600">
-              You will receive a sacred booking confirmation with receipt details on WhatsApp immediately after payment. The temple priest's office will also receive your scheduling details for divine arrangements.
+              {t.instantConfirmation}
             </p>
           </div>
         </div>

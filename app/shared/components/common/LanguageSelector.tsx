@@ -16,6 +16,8 @@ const languages: LanguageOption[] = [
   { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
   { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
   { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
+  { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
 ]
 
 export function LanguageSelector() {

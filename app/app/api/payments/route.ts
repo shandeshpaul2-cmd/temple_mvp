@@ -481,6 +481,7 @@ export async function POST(request: NextRequest) {
               amount: donation.amount,
               donation_id: donation.receiptNumber,
               donation_date: donation.createdAt.toISOString().split('T')[0], // YYYY-MM-DD format
+              phone_number: userInfo.phoneNumber || '',
               payment_mode: 'Online',
               org_name: 'Shri Raghavendra Swamy Brundavana Sannidhi',
               org_subtitle: 'Service to Humanity is Service to God',
@@ -502,19 +503,10 @@ export async function POST(request: NextRequest) {
           // Send WhatsApp notifications
           const [adminNotified, donorNotified] = await Promise.all([
             whatsappService.sendDonationNotificationToAdmin(donationDetails),
-            whatsappService.sendDonationReceiptToDonor(donationDetails, undefined, true) // true = also send to admin, but no attachment
+            whatsappService.sendDonationReceiptToDonor(donationDetails, certificateUrl, false) // Include certificate URL, don't duplicate to admin
           ])
 
-          // Send separate message with certificate link
-          if (certificateUrl) {
-            const certificateMessage = config.generateCertificateWhatsAppMessage(
-              donationDetails.donorName,
-              donationDetails.amount,
-              donationDetails.receiptNumber
-            )
-
-            await whatsappService.sendCustomMessage(['7760118171'], certificateMessage)
-          }
+          // Certificate link is already included in the donor receipt above, no need for separate message
 
           if (adminNotified && donorNotified) {
             console.log('✅ Donation WhatsApp notifications sent successfully with certificate')
